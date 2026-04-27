@@ -128,7 +128,7 @@ function BpCard({ bp, pending, onChange }) {
           <button style={countBtnStyle(acquired_count <= 0)} onClick={() => adjustCount(-1)} disabled={acquired_count <= 0}>−</button>
           <span style={{
             fontFamily: "var(--font-mono)", fontSize: "0.82rem", minWidth: 18, textAlign: "center",
-            color: acquired_count > 0 ? "#40c878" : "var(--text-muted)", fontWeight: 600,
+            color: acquired_count > 0 ? "var(--color-success)" : "var(--text-muted)", fontWeight: 600,
           }}>
             {acquired_count}
           </span>
@@ -317,7 +317,7 @@ export default function TrackerPage() {
                 </div>
                 <div className="stat-tile">
                   <div className="stat-label">Missing</div>
-                  <div className="stat-value" style={{ color: totals.not_acquired > 0 ? "#e05050" : "#48c878", fontSize: "1.4rem" }}>{totals.not_acquired}</div>
+                  <div className="stat-value" style={{ color: totals.not_acquired > 0 ? "var(--color-danger)" : "var(--color-success)", fontSize: "1.4rem" }}>{totals.not_acquired}</div>
                 </div>
               </div>
 

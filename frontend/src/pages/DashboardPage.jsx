@@ -94,7 +94,7 @@ export default function DashboardPage() {
         </div>
         <div className="stat-tile">
           <div className="stat-label">Fully Covered</div>
-          <div className="stat-value" style={{ color: fullyLearned.length > 0 ? "#48c878" : "var(--text-muted)", fontSize: "1.4rem" }}>
+          <div className="stat-value" style={{ color: fullyLearned.length > 0 ? "var(--color-success)" : "var(--text-muted)", fontSize: "1.4rem" }}>
             {fullyLearned.length} / {totalBps}
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function DashboardPage() {
             </span>
           </div>
           {uncoveredBps.length === 0 ? (
-            <div className="empty-state" style={{ color: "#48c878" }}>
+            <div className="empty-state" style={{ color: "var(--color-success)" }}>
               ✓ Every blueprint has been learned by at least one character.
             </div>
           ) : (

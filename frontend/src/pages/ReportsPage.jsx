@@ -49,7 +49,7 @@ function CharSummaryReport() {
               <td className="char-name-cell">{c.name}</td>
               <td><span className="char-class-tag">{c.class || "—"}</span></td>
               <td style={{ color: "var(--amber)" }}>{c.learned}</td>
-              <td style={{ color: "#40c878" }}>{c.acquired_not_learned}</td>
+              <td style={{ color: "var(--color-success)" }}>{c.acquired_not_learned}</td>
               <td style={{ color: "var(--text-muted)" }}>{c.missing}</td>
               <td style={{ color: "var(--cyan)" }}>{c.total_extras}</td>
               <td>
@@ -127,8 +127,8 @@ function BlueprintCoverageReport() {
                 <td><span className="tag">{b.category}</span></td>
                 <td><span className={`rarity rarity-${b.rarity}`}>{b.rarity}</span></td>
                 <td style={{ color: "var(--amber)" }}>{b.learned}</td>
-                <td style={{ color: "#40c878" }}>{b.acquired_only}</td>
-                <td style={{ color: b.missing > 0 ? "var(--text-muted)" : "#40c878" }}>{b.missing}</td>
+                <td style={{ color: "var(--color-success)" }}>{b.acquired_only}</td>
+                <td style={{ color: b.missing > 0 ? "var(--text-muted)" : "var(--color-success)" }}>{b.missing}</td>
                 <td style={{ color: "var(--cyan)" }}>{b.total_extras}</td>
                 <td>
                   <div className="flex items-center gap-sm">
@@ -211,7 +211,7 @@ function MissingBlueprintReport() {
             </span>
           </div>
           {result.missing_count === 0 ? (
-            <div className="empty-state" style={{ color: "#40c878" }}>
+            <div className="empty-state" style={{ color: "var(--color-success)" }}>
               ✓ All characters have this blueprint!
             </div>
           ) : (
@@ -467,7 +467,7 @@ function ExtrasReport() {
                         ? <span style={{ color: "var(--amber)", fontFamily: "var(--font-mono)", fontSize: "0.72rem" }}>✓ Yes</span>
                         : <span style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)", fontSize: "0.72rem" }}>○ No</span>}
                     </td>
-                    <td style={{ fontFamily: "var(--font-mono)", color: "#40c878", textAlign: "center" }}>{r.acquired_count}</td>
+                    <td style={{ fontFamily: "var(--font-mono)", color: "var(--color-success)", textAlign: "center" }}>{r.acquired_count}</td>
                     <td style={{ fontFamily: "var(--font-mono)", color: "var(--cyan)", fontWeight: 700, textAlign: "center" }}>{r.extras}</td>
                     <td style={{ fontFamily: "var(--font-mono)", color: "var(--amber)", fontSize: "0.72rem" }}>
                       {(r.extras * 5000).toLocaleString()} coins

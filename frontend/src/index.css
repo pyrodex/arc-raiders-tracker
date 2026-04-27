@@ -10,9 +10,10 @@
   --border-bright: #2a4060;
   --border-accent: #c8891a;
 
+  /* text-muted bumped from #3d6070 (2.8:1) to #5e8596 (~5:1 on bg-dark) */
   --text-primary: #d4e8f0;
   --text-secondary: #7fa8c0;
-  --text-muted: #3d6070;
+  --text-muted: #5e8596;
   --text-accent: #e8a030;
   --text-accent2: #40c8f0;
 
@@ -23,11 +24,18 @@
   --cyan-dark: #2890b8;
   --cyan-glow: rgba(64, 200, 240, 0.12);
 
-  --status-not: #2a3540;
-  --status-not-text: #5080a0;
-  --status-acquired: #1a3a28;
+  /* semantic colour tokens — adapts with theme */
+  --color-success: #40c878;
+  --color-danger:  #e05050;
+
+  --status-not: #1e2d3d;
+  --status-not-border: #2a4055;
+  --status-not-text: #6a9ab8;
+  --status-acquired: #142b1e;
+  --status-acquired-border: #1e5030;
   --status-acquired-text: #40c87a;
-  --status-learned: #2a2010;
+  --status-learned: #261c0c;
+  --status-learned-border: #4a3010;
   --status-learned-text: #e8a030;
 
   --rarity-common: #7fa8c0;
@@ -35,6 +43,8 @@
   --rarity-rare: #4888e8;
   --rarity-epic: #a858e8;
   --rarity-legendary: #e89030;
+
+  --progress-track: var(--bg-dark);
 
   --font-display: "Rajdhani", sans-serif;
   --font-mono: "Share Tech Mono", monospace;
@@ -46,42 +56,51 @@
 
 /* ── Light (day) theme ── */
 [data-theme="light"] {
-  --bg-void: #e8edf2;
-  --bg-dark: #f0f4f8;
+  --bg-void: #e4eaf0;
+  --bg-dark: #edf1f6;
   --bg-panel: #ffffff;
-  --bg-card: #f7f9fb;
-  --bg-hover: #e2eaf2;
-  --bg-active: #d4e4f0;
+  --bg-card: #f5f8fb;
+  --bg-hover: #e0eaf4;
+  --bg-active: #d0e2f0;
 
-  --border: #c0cdd8;
-  --border-bright: #8aaec8;
-  --border-accent: #b87010;
+  --border: #b8c8d8;
+  --border-bright: #7a9ab8;
+  --border-accent: #a06010;
 
-  --text-primary: #1a2a38;
-  --text-secondary: #3a6080;
-  --text-muted: #7090a8;
-  --text-accent: #b87010;
-  --text-accent2: #1878a8;
+  /* text-muted darkened from #7090a8 (3.3:1) to #3e6078 (~6:1 on white) */
+  --text-primary: #12202e;
+  --text-secondary: #2e5070;
+  --text-muted: #3e6078;
+  --text-accent: #a06010;
+  --text-accent2: #0e6898;
 
-  --amber: #b87010;
-  --amber-dark: #8a5008;
-  --amber-glow: rgba(184, 112, 16, 0.12);
-  --cyan: #1878a8;
-  --cyan-dark: #0f5880;
-  --cyan-glow: rgba(24, 120, 168, 0.12);
+  --amber: #a06010;
+  --amber-dark: #784808;
+  --amber-glow: rgba(160, 96, 16, 0.12);
+  --cyan: #0e6898;
+  --cyan-dark: #0a4870;
+  --cyan-glow: rgba(14, 104, 152, 0.12);
+
+  --color-success: #157040;
+  --color-danger:  #b02828;
 
   --status-not: #dde6ee;
-  --status-not-text: #5a7a90;
-  --status-acquired: #d4f0e0;
-  --status-acquired-text: #1a8048;
-  --status-learned: #fdefd4;
-  --status-learned-text: #b87010;
+  --status-not-border: #a0b8cc;
+  --status-not-text: #386080;
+  --status-acquired: #cce8d8;
+  --status-acquired-border: #60a878;
+  --status-acquired-text: #0e6030;
+  --status-learned: #fce8c8;
+  --status-learned-border: #c88030;
+  --status-learned-text: #804808;
 
-  --rarity-common: #3a6080;
-  --rarity-uncommon: #1a7840;
-  --rarity-rare: #1850b8;
-  --rarity-epic: #7828b8;
-  --rarity-legendary: #b87010;
+  --rarity-common: #2e5070;
+  --rarity-uncommon: #0e6030;
+  --rarity-rare: #1040a8;
+  --rarity-epic: #6018a8;
+  --rarity-legendary: #a06010;
+
+  --progress-track: #d0dae4;
 }
 
 [data-theme="light"] body::before { display: none; }
@@ -252,10 +271,13 @@ body::before {
 
 .btn-danger {
   background: transparent;
-  border-color: #4a1a1a;
-  color: #c04040;
+  border-color: color-mix(in srgb, var(--color-danger) 40%, transparent);
+  color: var(--color-danger);
 }
-.btn-danger:hover { background: rgba(192,64,64,0.15); border-color: #c04040; }
+.btn-danger:hover {
+  background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  border-color: var(--color-danger);
+}
 
 .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
 .btn-icon { padding: 0.35rem 0.5rem; }
@@ -324,7 +346,7 @@ body::before {
 
 .data-table td {
   padding: 0.55rem 0.8rem;
-  border-bottom: 1px solid rgba(30,45,61,0.5);
+  border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
 
@@ -344,9 +366,9 @@ body::before {
   white-space: nowrap;
 }
 
-.status-not_acquired { background: var(--status-not); color: var(--status-not-text); border: 1px solid #253545; }
-.status-acquired { background: var(--status-acquired); color: var(--status-acquired-text); border: 1px solid #1a5030; }
-.status-learned { background: var(--status-learned); color: var(--status-learned-text); border: 1px solid #4a3010; }
+.status-not_acquired { background: var(--status-not); color: var(--status-not-text); border: 1px solid var(--status-not-border); }
+.status-acquired     { background: var(--status-acquired); color: var(--status-acquired-text); border: 1px solid var(--status-acquired-border); }
+.status-learned      { background: var(--status-learned); color: var(--status-learned-text); border: 1px solid var(--status-learned-border); }
 
 /* ── Rarity ── */
 .rarity { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.04em; font-weight: 600; }
@@ -358,7 +380,7 @@ body::before {
 
 /* ── Progress bar ── */
 .progress-bar-wrap {
-  background: var(--bg-dark);
+  background: var(--progress-track);
   border: 1px solid var(--border);
   border-radius: 2px;
   height: 8px;
@@ -405,8 +427,8 @@ body::before {
 }
 
 .stat-value.cyan { color: var(--cyan); }
-.stat-value.green { color: #48c878; }
-.stat-value.red { color: #e05050; }
+.stat-value.green { color: var(--color-success); }
+.stat-value.red { color: var(--color-danger); }
 
 /* ── Search bar ── */
 .search-bar {
@@ -562,8 +584,8 @@ body::before {
 
 .bp-card:hover { border-color: var(--border-bright); }
 .bp-card.learned { border-left: 3px solid var(--amber); }
-.bp-card.acquired { border-left: 3px solid #40c878; }
-.bp-card.not_acquired { border-left: 3px solid #253545; }
+.bp-card.acquired { border-left: 3px solid var(--color-success); }
+.bp-card.not_acquired { border-left: 3px solid var(--border-bright); }
 
 .bp-card-name {
   font-family: var(--font-display);
@@ -602,14 +624,14 @@ body::before {
   transition: all 0.15s;
 }
 
-.status-btn-not { background: var(--status-not); border-color: #253545; color: var(--status-not-text); }
-.status-btn-not.sel, .status-btn-not:hover { background: #354555; border-color: #5080a0; color: #a0c8e0; }
+.status-btn-not { background: var(--status-not); border-color: var(--status-not-border); color: var(--status-not-text); }
+.status-btn-not.sel, .status-btn-not:hover { background: var(--bg-hover); border-color: var(--cyan-dark); color: var(--cyan); }
 
-.status-btn-acq { background: var(--status-acquired); border-color: #1a5030; color: var(--status-acquired-text); }
-.status-btn-acq.sel, .status-btn-acq:hover { background: #204035; border-color: #40c878; }
+.status-btn-acq { background: var(--status-acquired); border-color: var(--status-acquired-border); color: var(--status-acquired-text); }
+.status-btn-acq.sel, .status-btn-acq:hover { background: var(--status-acquired); border-color: var(--color-success); color: var(--status-acquired-text); }
 
-.status-btn-lrn { background: var(--status-learned); border-color: #4a3010; color: var(--status-learned-text); }
-.status-btn-lrn.sel, .status-btn-lrn:hover { background: #3a2808; border-color: var(--amber); }
+.status-btn-lrn { background: var(--status-learned); border-color: var(--status-learned-border); color: var(--status-learned-text); }
+.status-btn-lrn.sel, .status-btn-lrn:hover { background: var(--status-learned); border-color: var(--amber); color: var(--status-learned-text); }
 
 /* ── Utility ── */
 .flex { display: flex; }
