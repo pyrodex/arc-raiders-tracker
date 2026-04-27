@@ -419,17 +419,44 @@ def _m009_clear_blueprint_sources(db):
     db.execute("UPDATE blueprints SET source=''")
 
 
+def _m010_drop_blueprint_source(db):
+    """Drop the source column from blueprints using rename-recreate (SQLite safe)."""
+    db.executescript("""
+        CREATE TABLE IF NOT EXISTS blueprints_new (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT NOT NULL UNIQUE,
+            category    TEXT NOT NULL DEFAULT 'Uncategorized',
+            item_type   TEXT,
+            rarity      TEXT DEFAULT 'Common',
+            icon        TEXT DEFAULT '📋',
+            icon_url    TEXT DEFAULT '',
+            description TEXT,
+            created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        INSERT INTO blueprints_new
+            (id, name, category, item_type, rarity, icon, icon_url, description, created_at)
+        SELECT  id, name, category, item_type, rarity, icon, icon_url, description, created_at
+        FROM blueprints;
+
+        DROP TABLE blueprints;
+
+        ALTER TABLE blueprints_new RENAME TO blueprints;
+    """)
+
+
 # Ordered list of all migrations.  Append new entries here as the schema evolves.
 MIGRATIONS = [
-    (1, "initial_schema",                       _m001_initial_schema),
-    (2, "blueprints_icon_source",               _m002_blueprints_icon_source),
-    (3, "character_blueprints_learned_acquired", _m003_character_blueprints_learned_acquired),
-    (4, "migrate_legacy_status_values",          _m004_migrate_legacy_status_values),
-    (5, "backfill_blueprint_icons",              _m005_backfill_blueprint_icons),
-    (6, "blueprints_add_icon_url",               _m006_blueprints_add_icon_url),
-    (7, "backfill_blueprint_icon_urls",          _m007_backfill_blueprint_icon_urls),
-    (8, "switch_icon_urls_to_local",             _m008_switch_icon_urls_to_local),
-    (9, "clear_blueprint_sources",               _m009_clear_blueprint_sources),
+    (1,  "initial_schema",                       _m001_initial_schema),
+    (2,  "blueprints_icon_source",               _m002_blueprints_icon_source),
+    (3,  "character_blueprints_learned_acquired", _m003_character_blueprints_learned_acquired),
+    (4,  "migrate_legacy_status_values",          _m004_migrate_legacy_status_values),
+    (5,  "backfill_blueprint_icons",              _m005_backfill_blueprint_icons),
+    (6,  "blueprints_add_icon_url",               _m006_blueprints_add_icon_url),
+    (7,  "backfill_blueprint_icon_urls",          _m007_backfill_blueprint_icon_urls),
+    (8,  "switch_icon_urls_to_local",             _m008_switch_icon_urls_to_local),
+    (9,  "clear_blueprint_sources",               _m009_clear_blueprint_sources),
+    (10, "drop_blueprint_source",                 _m010_drop_blueprint_source),
 ]
 
 
@@ -575,10 +602,10 @@ def create_blueprint():
     db = get_db()
     try:
         cur = db.execute(
-            "INSERT INTO blueprints (name, category, item_type, rarity, icon, source, description) VALUES (?,?,?,?,?,?,?)",
+            "INSERT INTO blueprints (name, category, item_type, rarity, icon, description) VALUES (?,?,?,?,?,?)",
             (name, data.get("category","Uncategorized"), data.get("item_type",""),
              data.get("rarity","Common"), data.get("icon","📋"),
-             data.get("source",""), data.get("description","")),
+             data.get("description","")),
         )
         new_id = cur.lastrowid
         db.execute("""
@@ -599,11 +626,10 @@ def update_blueprint(bid):
     if not row:
         return jsonify({"error": "Not found"}), 404
     db.execute(
-        "UPDATE blueprints SET name=?, category=?, item_type=?, rarity=?, icon=?, source=?, description=? WHERE id=?",
+        "UPDATE blueprints SET name=?, category=?, item_type=?, rarity=?, icon=?, description=? WHERE id=?",
         ((data.get("name") or row["name"]).strip(), data.get("category", row["category"]),
          data.get("item_type", row["item_type"]), data.get("rarity", row["rarity"]),
-         data.get("icon", row["icon"]), data.get("source", row["source"]),
-         data.get("description", row["description"]), bid),
+         data.get("icon", row["icon"]), data.get("description", row["description"]), bid),
     )
     db.commit()
     return jsonify(dict(db.execute("SELECT * FROM blueprints WHERE id=?", (bid,)).fetchone()))
@@ -631,7 +657,7 @@ def list_categories():
 def get_character_blueprints(cid):
     db = get_db()
     rows = db.execute("""
-        SELECT b.id, b.name, b.category, b.item_type, b.rarity, b.icon, b.icon_url, b.source,
+        SELECT b.id, b.name, b.category, b.item_type, b.rarity, b.icon, b.icon_url,
                COALESCE(cb.learned, 0)        AS learned,
                COALESCE(cb.acquired_count, 0) AS acquired_count,
                cb.updated_at
@@ -943,14 +969,14 @@ def seed_sample_data():
         existing = db.execute("SELECT id FROM blueprints WHERE name=?", (name,)).fetchone()
         if existing:
             db.execute(
-                "UPDATE blueprints SET category=?, item_type=?, rarity=?, icon=?, source='', icon_url=? WHERE id=?",
+                "UPDATE blueprints SET category=?, item_type=?, rarity=?, icon=?, icon_url=? WHERE id=?",
                 (cat, itype, rarity, icon, icon_url, existing["id"]),
             )
             updated += 1
             new_id = existing["id"]
         else:
             cur = db.execute(
-                "INSERT INTO blueprints (name, category, item_type, rarity, icon, source, description, icon_url) VALUES (?,?,?,?,?,'','',?)",
+                "INSERT INTO blueprints (name, category, item_type, rarity, icon, description, icon_url) VALUES (?,?,?,?,?,'',?)",
                 (name, cat, itype, rarity, icon, icon_url),
             )
             new_id = cur.lastrowid

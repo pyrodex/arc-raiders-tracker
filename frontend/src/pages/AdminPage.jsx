@@ -69,7 +69,7 @@ const RARITIES = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
 
 function BlueprintModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(
-    initial || { name: "", category: "Uncategorized", item_type: "", rarity: "Common", icon: "📋", source: "", description: "" }
+    initial || { name: "", category: "Uncategorized", item_type: "", rarity: "Common", icon: "📋", description: "" }
   );
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
@@ -106,10 +106,6 @@ function BlueprintModal({ initial, onSave, onClose }) {
               <label className="form-label">Item Type</label>
               <input className="form-input" value={form.item_type} onChange={set("item_type")} placeholder="e.g. Assault Rifle, Grip..." />
             </div>
-          </div>
-          <div className="form-group mb-md">
-            <label className="form-label">Source / How to Obtain</label>
-            <input className="form-input" value={form.source} onChange={set("source")} placeholder="e.g. All maps — Raider Containers" />
           </div>
           <div className="form-group">
             <label className="form-label">Notes</label>
@@ -320,7 +316,6 @@ export default function AdminPage() {
                     <th>Category</th>
                     <th>Type</th>
                     <th>Difficulty</th>
-                    <th>Source</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -332,9 +327,6 @@ export default function AdminPage() {
                       <td><span className="tag">{b.category}</span></td>
                       <td className="text-muted text-sm">{b.item_type || "—"}</td>
                       <td><span className={`rarity rarity-${b.rarity}`}>{b.rarity}</span></td>
-                      <td className="text-muted text-sm" style={{ maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {b.source || "—"}
-                      </td>
                       <td>
                         <div className="flex gap-sm">
                           <button className="btn btn-secondary btn-sm" onClick={() => setBpModal(b)}>Edit</button>
