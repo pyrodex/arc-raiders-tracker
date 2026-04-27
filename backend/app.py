@@ -526,7 +526,7 @@ def list_categories():
 def get_character_blueprints(cid):
     db = get_db()
     rows = db.execute("""
-        SELECT b.id, b.name, b.category, b.item_type, b.rarity, b.icon, b.source,
+        SELECT b.id, b.name, b.category, b.item_type, b.rarity, b.icon, b.icon_url, b.source,
                COALESCE(cb.learned, 0)        AS learned,
                COALESCE(cb.acquired_count, 0) AS acquired_count,
                cb.updated_at
