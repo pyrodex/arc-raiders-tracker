@@ -412,7 +412,7 @@ function ExtrasReport() {
       <div className="panel mb-md">
         <div className="panel-body">
           <p style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "0.75rem" }}>
-            Shows every character/blueprint pair where spare copies exist — learned and still holding copies, or multiple unlearned copies. Each extra can be sold for 5,000 coins.
+            Shows every character/blueprint pair where spare copies exist — learned and still holding copies, or multiple unlearned copies.
           </p>
           <button className="btn btn-primary" onClick={run} disabled={loading}>
             {loading ? "Running..." : "Find All Extras"}
@@ -449,7 +449,6 @@ function ExtrasReport() {
                   <th>Learned</th>
                   <th>Copies Held</th>
                   <th>Extras</th>
-                  <th>Sell Value</th>
                 </tr>
               </thead>
               <tbody>
@@ -469,9 +468,6 @@ function ExtrasReport() {
                     </td>
                     <td style={{ fontFamily: "var(--font-mono)", color: "var(--color-success)", textAlign: "center" }}>{r.acquired_count}</td>
                     <td style={{ fontFamily: "var(--font-mono)", color: "var(--cyan)", fontWeight: 700, textAlign: "center" }}>{r.extras}</td>
-                    <td style={{ fontFamily: "var(--font-mono)", color: "var(--amber)", fontSize: "0.72rem" }}>
-                      {(r.extras * 5000).toLocaleString()} coins
-                    </td>
                   </tr>
                 ))}
               </tbody>
