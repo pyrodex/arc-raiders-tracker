@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: arc-raiders-backend
+    volumes:
+      - ./data:/data
+    environment:
+      - DATABASE_PATH=/data/arc_raiders.db
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: arc-raiders-frontend
+    ports:
+      - "3333:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

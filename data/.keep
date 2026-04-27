@@ -1,0 +1,3 @@
+This directory holds the SQLite database (arc_raiders.db).
+It is created automatically on first run via the bind mount in docker-compose.yml.
+The .db file is excluded from version control via .gitignore.
