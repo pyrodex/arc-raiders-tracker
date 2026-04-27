@@ -89,13 +89,6 @@ function BpCard({ bp, pending, onChange }) {
         <span className={`rarity rarity-${bp.rarity}`}>{bp.rarity}</span>
       </div>
 
-      {/* Source */}
-      {bp.source && (
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.4 }}>
-          {bp.source}
-        </div>
-      )}
-
       {/* Controls */}
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.25rem", flexWrap: "wrap" }}>
         {/* Learned toggle */}
@@ -136,15 +129,6 @@ function BpCard({ bp, pending, onChange }) {
         </div>
       </div>
 
-      {/* State summary line */}
-      {(acquired_count > 0 || learned) && (
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.73rem", color: "var(--text-muted)", marginTop: "0.1rem", lineHeight: 1.4 }}>
-          {learned && acquired_count === 0 && "Learned — no copies in inventory"}
-          {learned && acquired_count > 0  && `Learned + ${acquired_count} cop${acquired_count === 1 ? "y" : "ies"} in inventory (${ext} extra${ext !== 1 ? "s" : ""})`}
-          {!learned && acquired_count === 1 && "1 copy — not yet learned"}
-          {!learned && acquired_count > 1  && `${acquired_count} copies — not yet learned (${ext} extra${ext !== 1 ? "s" : ""})`}
-        </div>
-      )}
     </div>
   );
 }

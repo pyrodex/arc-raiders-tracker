@@ -414,6 +414,11 @@ def _m008_switch_icon_urls_to_local(db):
         db.execute("UPDATE blueprints SET icon_url=? WHERE name=?", (local_url, name))
 
 
+def _m009_clear_blueprint_sources(db):
+    """Remove all source/where-found text from blueprints — no longer shown in the UI."""
+    db.execute("UPDATE blueprints SET source=''")
+
+
 # Ordered list of all migrations.  Append new entries here as the schema evolves.
 MIGRATIONS = [
     (1, "initial_schema",                       _m001_initial_schema),
@@ -424,6 +429,7 @@ MIGRATIONS = [
     (6, "blueprints_add_icon_url",               _m006_blueprints_add_icon_url),
     (7, "backfill_blueprint_icon_urls",          _m007_backfill_blueprint_icon_urls),
     (8, "switch_icon_urls_to_local",             _m008_switch_icon_urls_to_local),
+    (9, "clear_blueprint_sources",               _m009_clear_blueprint_sources),
 ]
 
 
@@ -842,110 +848,110 @@ def seed_sample_data():
     db = get_db()
     blueprints = [
         # ── Weapons ──────────────────────────────────────────────────────
-        ("Anvil",                     "Weapons", "Assault Rifle",    "Common",    "🔫", "All maps — Raider Containers"),
-        ("Aphelion",                  "Weapons", "Sniper Rifle",     "Rare",      "🎯", "Stella Montis only — any container"),
-        ("Bettina",                   "Weapons", "SMG",              "Common",    "🔫", "All maps — Raider Containers"),
-        ("Bobcat",                    "Weapons", "LMG",              "Epic",      "🔫", "Event: Locked Gate or Hurricane — First Wave Cache / anywhere"),
-        ("Burletta",                  "Weapons", "Pistol",           "Epic",      "🔫", "Quest: Industrial Espionage"),
-        ("Canto",                     "Weapons", "SMG",              "Rare",      "🔫", "Event: Hurricane — First Wave Raider Caches (Flashpoint 1.22.0)"),
-        ("Deadline",                  "Weapons", "Sniper Rifle",     "Rare",      "🎯", "Stella Montis only — any container"),
-        ("Dolabra",                   "Weapons", "Energy Shotgun",   "Legendary", "🔫", "Event: Close Scrutiny — ARC Assessor containers (Flashpoint 1.22.0)"),
-        ("Equalizer",                 "Weapons", "Assault Rifle",    "Legendary", "🔫", "Event: Harvester — completion reward"),
-        ("Hullcracker",               "Weapons", "Shotgun",          "Epic",      "🔫", "Quest: The Major's Footlocker"),
-        ("Il Toro",                   "Weapons", "LMG",              "Common",    "🔫", "All maps — Raider Containers"),
-        ("Jupiter",                   "Weapons", "Heavy Weapon",     "Legendary", "🔫", "Event: Harvester — completion reward"),
-        ("Osprey",                    "Weapons", "Marksman Rifle",   "Common",    "🎯", "All maps — Raider Containers"),
-        ("Showstopper",               "Weapons", "Shotgun",          "Common",    "🔫", "All maps — Raider Containers"),
-        ("Tempest I",                 "Weapons", "Assault Rifle",    "Epic",      "🔫", "Event: Night Raid — any map"),
-        ("Torrente",                  "Weapons", "Shotgun",          "Common",    "🔫", "All maps — Raider Containers"),
-        ("Venator",                   "Weapons", "Assault Rifle",    "Common",    "🔫", "All maps — Raider Containers"),
-        ("Vulcano",                   "Weapons", "Grenade Launcher", "Epic",      "🔫", "Event: Hidden Bunker"),
-        ("Wolfpack",                  "Weapons", "SMG",              "Rare",      "🔫", "All maps — elevated conditions recommended"),
+        ("Anvil",                     "Weapons", "Assault Rifle",    "Common",    "🔫"),
+        ("Aphelion",                  "Weapons", "Sniper Rifle",     "Rare",      "🎯"),
+        ("Bettina",                   "Weapons", "SMG",              "Common",    "🔫"),
+        ("Bobcat",                    "Weapons", "LMG",              "Epic",      "🔫"),
+        ("Burletta",                  "Weapons", "Pistol",           "Epic",      "🔫"),
+        ("Canto",                     "Weapons", "SMG",              "Rare",      "🔫"),
+        ("Deadline",                  "Weapons", "Sniper Rifle",     "Rare",      "🎯"),
+        ("Dolabra",                   "Weapons", "Energy Shotgun",   "Legendary", "🔫"),
+        ("Equalizer",                 "Weapons", "Assault Rifle",    "Legendary", "🔫"),
+        ("Hullcracker",               "Weapons", "Shotgun",          "Epic",      "🔫"),
+        ("Il Toro",                   "Weapons", "LMG",              "Common",    "🔫"),
+        ("Jupiter",                   "Weapons", "Heavy Weapon",     "Legendary", "🔫"),
+        ("Osprey",                    "Weapons", "Marksman Rifle",   "Common",    "🎯"),
+        ("Showstopper",               "Weapons", "Shotgun",          "Common",    "🔫"),
+        ("Tempest I",                 "Weapons", "Assault Rifle",    "Epic",      "🔫"),
+        ("Torrente",                  "Weapons", "Shotgun",          "Common",    "🔫"),
+        ("Venator",                   "Weapons", "Assault Rifle",    "Common",    "🔫"),
+        ("Vulcano",                   "Weapons", "Grenade Launcher", "Epic",      "🔫"),
+        ("Wolfpack",                  "Weapons", "SMG",              "Rare",      "🔫"),
         # ── Attachments ──────────────────────────────────────────────────
-        ("Angled Grip II",            "Attachments", "Grip",     "Common",   "🔧", "All maps — Residential Containers"),
-        ("Angled Grip III",           "Attachments", "Grip",     "Uncommon", "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
-        ("Compensator II",            "Attachments", "Muzzle",   "Common",   "🔧", "All maps — Residential Containers"),
-        ("Compensator III",           "Attachments", "Muzzle",   "Uncommon", "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
-        ("Extended Barrel",           "Attachments", "Barrel",   "Uncommon", "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
-        ("Extended Light Mag II",     "Attachments", "Magazine", "Common",   "🔧", "All maps — Residential Containers"),
-        ("Extended Light Mag III",    "Attachments", "Magazine", "Uncommon", "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
-        ("Extended Medium Mag II",    "Attachments", "Magazine", "Uncommon", "🔧", "All maps Night Raid — Residential Containers"),
-        ("Extended Medium Mag III",   "Attachments", "Magazine", "Rare",     "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
-        ("Extended Shotgun Mag II",   "Attachments", "Magazine", "Common",   "🔧", "All maps — Residential Containers"),
-        ("Extended Shotgun Mag III",  "Attachments", "Magazine", "Uncommon", "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
-        ("Lightweight Stock",         "Attachments", "Stock",    "Common",   "🔧", "All maps — Residential Containers"),
-        ("Muzzle Brake II",           "Attachments", "Muzzle",   "Common",   "🔧", "All maps — Residential Containers"),
-        ("Muzzle Brake III",          "Attachments", "Muzzle",   "Uncommon", "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
-        ("Padded Stock",              "Attachments", "Stock",    "Common",   "🔧", "All maps — Residential Containers"),
-        ("Shotgun Choke II",          "Attachments", "Muzzle",   "Common",   "🔧", "All maps — Residential Containers"),
-        ("Shotgun Choke III",         "Attachments", "Muzzle",   "Uncommon", "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
-        ("Shotgun Silencer",          "Attachments", "Muzzle",   "Common",   "🔧", "All maps — Residential Containers"),
-        ("Silencer I",                "Attachments", "Muzzle",   "Common",   "🔧", "All maps — Residential Containers"),
-        ("Silencer II",               "Attachments", "Muzzle",   "Uncommon", "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
-        ("Stable Stock II",           "Attachments", "Stock",    "Common",   "🔧", "All maps — Residential Containers"),
-        ("Stable Stock III",          "Attachments", "Stock",    "Uncommon", "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
-        ("Vertical Grip II",          "Attachments", "Grip",     "Common",   "🔧", "All maps — Residential Containers"),
-        ("Vertical Grip III",         "Attachments", "Grip",     "Uncommon", "🔧", "Electromagnetic Storm / Locked Gate / Night Raid — Residential Containers"),
+        ("Angled Grip II",            "Attachments", "Grip",     "Common",   "🔧"),
+        ("Angled Grip III",           "Attachments", "Grip",     "Uncommon", "🔧"),
+        ("Compensator II",            "Attachments", "Muzzle",   "Common",   "🔧"),
+        ("Compensator III",           "Attachments", "Muzzle",   "Uncommon", "🔧"),
+        ("Extended Barrel",           "Attachments", "Barrel",   "Uncommon", "🔧"),
+        ("Extended Light Mag II",     "Attachments", "Magazine", "Common",   "🔧"),
+        ("Extended Light Mag III",    "Attachments", "Magazine", "Uncommon", "🔧"),
+        ("Extended Medium Mag II",    "Attachments", "Magazine", "Uncommon", "🔧"),
+        ("Extended Medium Mag III",   "Attachments", "Magazine", "Rare",     "🔧"),
+        ("Extended Shotgun Mag II",   "Attachments", "Magazine", "Common",   "🔧"),
+        ("Extended Shotgun Mag III",  "Attachments", "Magazine", "Uncommon", "🔧"),
+        ("Lightweight Stock",         "Attachments", "Stock",    "Common",   "🔧"),
+        ("Muzzle Brake II",           "Attachments", "Muzzle",   "Common",   "🔧"),
+        ("Muzzle Brake III",          "Attachments", "Muzzle",   "Uncommon", "🔧"),
+        ("Padded Stock",              "Attachments", "Stock",    "Common",   "🔧"),
+        ("Shotgun Choke II",          "Attachments", "Muzzle",   "Common",   "🔧"),
+        ("Shotgun Choke III",         "Attachments", "Muzzle",   "Uncommon", "🔧"),
+        ("Shotgun Silencer",          "Attachments", "Muzzle",   "Common",   "🔧"),
+        ("Silencer I",                "Attachments", "Muzzle",   "Common",   "🔧"),
+        ("Silencer II",               "Attachments", "Muzzle",   "Uncommon", "🔧"),
+        ("Stable Stock II",           "Attachments", "Stock",    "Common",   "🔧"),
+        ("Stable Stock III",          "Attachments", "Stock",    "Uncommon", "🔧"),
+        ("Vertical Grip II",          "Attachments", "Grip",     "Common",   "🔧"),
+        ("Vertical Grip III",         "Attachments", "Grip",     "Uncommon", "🔧"),
         # ── Grenades & Mines ─────────────────────────────────────────────
-        ("Blaze Grenade",             "Grenades & Mines", "Fire Grenade", "Common", "💥", "All maps — Industrial Containers"),
-        ("Explosive Mine",            "Grenades & Mines", "Mine",         "Common", "💥", "All maps — Industrial Containers"),
-        ("Fireworks Box",             "Grenades & Mines", "Special",      "Epic",   "🎆", "Event: Cold Snap (anywhere) OR Quest: Test Case"),
-        ("Gas Mine",                  "Grenades & Mines", "Mine",         "Rare",   "☣️",  "Stella Montis only — any container"),
-        ("Jolt Mine",                 "Grenades & Mines", "Mine",         "Common", "⚡", "All maps — Industrial Containers"),
-        ("Lure Grenade",              "Grenades & Mines", "Grenade",      "Common", "💥", "All maps"),
-        ("Pulse Mine",                "Grenades & Mines", "Mine",         "Common", "💥", "All maps"),
-        ("Seeker Grenade",            "Grenades & Mines", "Grenade",      "Common", "💥", "All maps"),
-        ("Smoke Grenade",             "Grenades & Mines", "Grenade",      "Common", "💥", "All maps"),
-        ("Tagging Grenade",           "Grenades & Mines", "Grenade",      "Common", "💥", "All maps"),
-        ("Trailblazer Grenade",       "Grenades & Mines", "Grenade",      "Common", "💥", "All maps"),
-        ("Trigger Nade",              "Grenades & Mines", "Grenade",      "Common", "💥", "All maps"),
+        ("Blaze Grenade",             "Grenades & Mines", "Fire Grenade", "Common", "💥"),
+        ("Explosive Mine",            "Grenades & Mines", "Mine",         "Common", "💥"),
+        ("Fireworks Box",             "Grenades & Mines", "Special",      "Epic",   "🎆"),
+        ("Gas Mine",                  "Grenades & Mines", "Mine",         "Rare",   "☣️"),
+        ("Jolt Mine",                 "Grenades & Mines", "Mine",         "Common", "⚡"),
+        ("Lure Grenade",              "Grenades & Mines", "Grenade",      "Common", "💥"),
+        ("Pulse Mine",                "Grenades & Mines", "Mine",         "Common", "💥"),
+        ("Seeker Grenade",            "Grenades & Mines", "Grenade",      "Common", "💥"),
+        ("Smoke Grenade",             "Grenades & Mines", "Grenade",      "Common", "💥"),
+        ("Tagging Grenade",           "Grenades & Mines", "Grenade",      "Common", "💥"),
+        ("Trailblazer Grenade",       "Grenades & Mines", "Grenade",      "Common", "💥"),
+        ("Trigger Nade",              "Grenades & Mines", "Grenade",      "Common", "💥"),
         # ── Tactical ─────────────────────────────────────────────────────
-        ("Barricade Kit",             "Tactical", "Deployable", "Common", "🛡️", "All maps — Electrical Containers"),
-        ("Defibrillator",             "Tactical", "Recovery",   "Common", "🛡️", "All maps — Medical Containers"),
-        ("Remote Raider Flare",       "Tactical", "Utility",    "Common", "🛡️", "All maps"),
-        ("Snap Hook",                 "Tactical", "Traversal",  "Common", "🛡️", "All maps"),
-        ("Surge Coil",                "Tactical", "Deployable", "Epic",   "⚡", "Event: Close Scrutiny; Storm reports on Dam (Flashpoint 1.22.0)"),
+        ("Barricade Kit",             "Tactical", "Deployable", "Common", "🛡️"),
+        ("Defibrillator",             "Tactical", "Recovery",   "Common", "🛡️"),
+        ("Remote Raider Flare",       "Tactical", "Utility",    "Common", "🛡️"),
+        ("Snap Hook",                 "Tactical", "Traversal",  "Common", "🛡️"),
+        ("Surge Coil",                "Tactical", "Deployable", "Epic",   "⚡"),
         # ── Medical ──────────────────────────────────────────────────────
-        ("Vita Shot",                 "Medical",  "Healing",    "Common", "💊", "All maps — Medical Containers"),
-        ("Vita Spray",                "Medical",  "Healing",    "Common", "💊", "All maps — Medical Containers"),
+        ("Vita Shot",                 "Medical",  "Healing",    "Common", "💊"),
+        ("Vita Spray",                "Medical",  "Healing",    "Common", "💊"),
         # ── Augments Mk.3 ────────────────────────────────────────────────
-        ("Combat Mk. 3 (Aggressive)", "Augments", "Combat",  "Rare", "⚡", "Stella Montis / Blue Gate — Security or Medical Containers"),
-        ("Combat Mk. 3 (Flanking)",   "Augments", "Combat",  "Rare", "⚡", "Stella Montis / Blue Gate — Security or Medical Containers"),
-        ("Looting Mk. 3 (Safekeeper)","Augments", "Looting", "Rare", "⚡", "Stella Montis / Blue Gate — Security Containers"),
-        ("Looting Mk. 3 (Survivor)",  "Augments", "Looting", "Rare", "⚡", "Stella Montis / Blue Gate — Security or Medical Containers"),
-        ("Tactical Mk. 3 (Defensive)","Augments", "Tactical","Rare", "⚡", "Stella Montis / Blue Gate — Security Containers"),
-        ("Tactical Mk. 3 (Healing)",  "Augments", "Tactical","Rare", "⚡", "Stella Montis / Blue Gate — Security Containers"),
-        ("Tactical Mk. 3 (Revival)",  "Augments", "Tactical","Rare", "⚡", "Stella Montis / Blue Gate — Security Containers"),
+        ("Combat Mk. 3 (Aggressive)", "Augments", "Combat",  "Rare", "⚡"),
+        ("Combat Mk. 3 (Flanking)",   "Augments", "Combat",  "Rare", "⚡"),
+        ("Looting Mk. 3 (Safekeeper)","Augments", "Looting", "Rare", "⚡"),
+        ("Looting Mk. 3 (Survivor)",  "Augments", "Looting", "Rare", "⚡"),
+        ("Tactical Mk. 3 (Defensive)","Augments", "Tactical","Rare", "⚡"),
+        ("Tactical Mk. 3 (Healing)",  "Augments", "Tactical","Rare", "⚡"),
+        ("Tactical Mk. 3 (Revival)",  "Augments", "Tactical","Rare", "⚡"),
         # ── Crafting Materials ───────────────────────────────────────────
-        ("Complex Gun Parts",         "Crafting Materials", "Parts", "Uncommon", "⚙️", "All maps — Security Containers"),
-        ("Heavy Gun Parts",           "Crafting Materials", "Parts", "Common",   "⚙️", "All maps — Raider Containers"),
-        ("Light Gun Parts",           "Crafting Materials", "Parts", "Common",   "⚙️", "All maps — Raider Containers"),
-        ("Medium Gun Parts",          "Crafting Materials", "Parts", "Common",   "⚙️", "All maps — Raider Containers"),
+        ("Complex Gun Parts",         "Crafting Materials", "Parts", "Uncommon", "⚙️"),
+        ("Heavy Gun Parts",           "Crafting Materials", "Parts", "Common",   "⚙️"),
+        ("Light Gun Parts",           "Crafting Materials", "Parts", "Common",   "⚙️"),
+        ("Medium Gun Parts",          "Crafting Materials", "Parts", "Common",   "⚙️"),
         # ── Light Sticks ─────────────────────────────────────────────────
-        ("Blue Light Stick",          "Light Sticks", "Cosmetic", "Common", "🔵", "All maps — Residential Containers"),
-        ("Green Light Stick",         "Light Sticks", "Cosmetic", "Common", "🟢", "All maps — Residential Containers"),
-        ("Red Light Stick",           "Light Sticks", "Cosmetic", "Common", "🔴", "All maps — Residential Containers"),
-        ("Yellow Light Stick",        "Light Sticks", "Cosmetic", "Common", "🟡", "All maps — Residential Containers"),
+        ("Blue Light Stick",          "Light Sticks", "Cosmetic", "Common", "🔵"),
+        ("Green Light Stick",         "Light Sticks", "Cosmetic", "Common", "🟢"),
+        ("Red Light Stick",           "Light Sticks", "Cosmetic", "Common", "🔴"),
+        ("Yellow Light Stick",        "Light Sticks", "Cosmetic", "Common", "🟡"),
     ]
     # Build icon_url lookup from the local-path map so seed and migration stay in sync
     icon_url_lookup = {name: url for name, url in _m008_local_map()}
 
     inserted = 0
     updated = 0
-    for (name, cat, itype, rarity, icon, source) in blueprints:
+    for (name, cat, itype, rarity, icon) in blueprints:
         icon_url = icon_url_lookup.get(name, "")
         existing = db.execute("SELECT id FROM blueprints WHERE name=?", (name,)).fetchone()
         if existing:
             db.execute(
-                "UPDATE blueprints SET category=?, item_type=?, rarity=?, icon=?, source=?, icon_url=? WHERE id=?",
-                (cat, itype, rarity, icon, source, icon_url, existing["id"]),
+                "UPDATE blueprints SET category=?, item_type=?, rarity=?, icon=?, source='', icon_url=? WHERE id=?",
+                (cat, itype, rarity, icon, icon_url, existing["id"]),
             )
             updated += 1
             new_id = existing["id"]
         else:
             cur = db.execute(
-                "INSERT INTO blueprints (name, category, item_type, rarity, icon, source, description, icon_url) VALUES (?,?,?,?,?,?,?,?)",
-                (name, cat, itype, rarity, icon, source, "", icon_url),
+                "INSERT INTO blueprints (name, category, item_type, rarity, icon, source, description, icon_url) VALUES (?,?,?,?,?,'','',?)",
+                (name, cat, itype, rarity, icon, icon_url),
             )
             new_id = cur.lastrowid
             inserted += 1
