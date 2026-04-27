@@ -111,12 +111,109 @@ def _m004_migrate_legacy_status_values(db):
         pass  # status column does not exist — nothing to migrate
 
 
+def _m005_backfill_blueprint_icons(db):
+    """Set correct per-item icons for all seeded blueprints that still have the default 📋."""
+    icon_map = [
+        # Weapons
+        ("Anvil",                      "🔫"),
+        ("Aphelion",                   "🎯"),
+        ("Bettina",                    "🔫"),
+        ("Bobcat",                     "🔫"),
+        ("Burletta",                   "🔫"),
+        ("Canto",                      "🔫"),
+        ("Deadline",                   "🎯"),
+        ("Dolabra",                    "🔫"),
+        ("Equalizer",                  "🔫"),
+        ("Hullcracker",                "🔫"),
+        ("Il Toro",                    "🔫"),
+        ("Jupiter",                    "🔫"),
+        ("Osprey",                     "🎯"),
+        ("Showstopper",                "🔫"),
+        ("Tempest I",                  "🔫"),
+        ("Torrente",                   "🔫"),
+        ("Venator",                    "🔫"),
+        ("Vulcano",                    "🔫"),
+        ("Wolfpack",                   "🔫"),
+        # Attachments
+        ("Angled Grip II",             "🔧"),
+        ("Angled Grip III",            "🔧"),
+        ("Compensator II",             "🔧"),
+        ("Compensator III",            "🔧"),
+        ("Extended Barrel",            "🔧"),
+        ("Extended Light Mag II",      "🔧"),
+        ("Extended Light Mag III",     "🔧"),
+        ("Extended Medium Mag II",     "🔧"),
+        ("Extended Medium Mag III",    "🔧"),
+        ("Extended Shotgun Mag II",    "🔧"),
+        ("Extended Shotgun Mag III",   "🔧"),
+        ("Lightweight Stock",          "🔧"),
+        ("Muzzle Brake II",            "🔧"),
+        ("Muzzle Brake III",           "🔧"),
+        ("Padded Stock",               "🔧"),
+        ("Shotgun Choke II",           "🔧"),
+        ("Shotgun Choke III",          "🔧"),
+        ("Shotgun Silencer",           "🔧"),
+        ("Silencer I",                 "🔧"),
+        ("Silencer II",                "🔧"),
+        ("Stable Stock II",            "🔧"),
+        ("Stable Stock III",           "🔧"),
+        ("Vertical Grip II",           "🔧"),
+        ("Vertical Grip III",          "🔧"),
+        # Grenades & Mines
+        ("Blaze Grenade",              "💥"),
+        ("Explosive Mine",             "💥"),
+        ("Fireworks Box",              "🎆"),
+        ("Gas Mine",                   "☣️"),
+        ("Jolt Mine",                  "⚡"),
+        ("Lure Grenade",               "💥"),
+        ("Pulse Mine",                 "💥"),
+        ("Seeker Grenade",             "💥"),
+        ("Smoke Grenade",              "💥"),
+        ("Tagging Grenade",            "💥"),
+        ("Trailblazer Grenade",        "💥"),
+        ("Trigger Nade",               "💥"),
+        # Tactical
+        ("Barricade Kit",              "🛡️"),
+        ("Defibrillator",              "🛡️"),
+        ("Remote Raider Flare",        "🛡️"),
+        ("Snap Hook",                  "🛡️"),
+        ("Surge Coil",                 "⚡"),
+        # Medical
+        ("Vita Shot",                  "💊"),
+        ("Vita Spray",                 "💊"),
+        # Augments
+        ("Combat Mk. 3 (Aggressive)",  "⚡"),
+        ("Combat Mk. 3 (Flanking)",    "⚡"),
+        ("Looting Mk. 3 (Safekeeper)", "⚡"),
+        ("Looting Mk. 3 (Survivor)",   "⚡"),
+        ("Tactical Mk. 3 (Defensive)", "⚡"),
+        ("Tactical Mk. 3 (Healing)",   "⚡"),
+        ("Tactical Mk. 3 (Revival)",   "⚡"),
+        # Crafting Materials
+        ("Complex Gun Parts",          "⚙️"),
+        ("Heavy Gun Parts",            "⚙️"),
+        ("Light Gun Parts",            "⚙️"),
+        ("Medium Gun Parts",           "⚙️"),
+        # Light Sticks
+        ("Blue Light Stick",           "🔵"),
+        ("Green Light Stick",          "🟢"),
+        ("Red Light Stick",            "🔴"),
+        ("Yellow Light Stick",         "🟡"),
+    ]
+    for name, icon in icon_map:
+        db.execute(
+            "UPDATE blueprints SET icon=? WHERE name=? AND (icon IS NULL OR icon='' OR icon='📋')",
+            (icon, name),
+        )
+
+
 # Ordered list of all migrations.  Append new entries here as the schema evolves.
 MIGRATIONS = [
     (1, "initial_schema",                       _m001_initial_schema),
     (2, "blueprints_icon_source",               _m002_blueprints_icon_source),
     (3, "character_blueprints_learned_acquired", _m003_character_blueprints_learned_acquired),
     (4, "migrate_legacy_status_values",          _m004_migrate_legacy_status_values),
+    (5, "backfill_blueprint_icons",              _m005_backfill_blueprint_icons),
 ]
 
 
@@ -478,7 +575,7 @@ def report_chars_with_blueprint():
 @app.route("/api/reports/unique-blueprints", methods=["GET"])
 def report_unique_blueprints():
     db = get_db()
-        rows = db.execute("""
+    rows = db.execute("""
         SELECT b.id, b.name, b.category, b.rarity, b.icon,
                c.id AS char_id, c.name AS char_name, c.class AS char_class
         FROM blueprints b
@@ -620,22 +717,29 @@ def seed_sample_data():
         ("Yellow Light Stick",        "Light Sticks", "Cosmetic", "Common", "🟡", "All maps — Residential Containers"),
     ]
     inserted = 0
+    updated = 0
     for (name, cat, itype, rarity, icon, source) in blueprints:
-        try:
+        existing = db.execute("SELECT id FROM blueprints WHERE name=?", (name,)).fetchone()
+        if existing:
+            db.execute(
+                "UPDATE blueprints SET category=?, item_type=?, rarity=?, icon=?, source=? WHERE id=?",
+                (cat, itype, rarity, icon, source, existing["id"]),
+            )
+            updated += 1
+            new_id = existing["id"]
+        else:
             cur = db.execute(
                 "INSERT INTO blueprints (name, category, item_type, rarity, icon, source, description) VALUES (?,?,?,?,?,?,?)",
-                (name, cat, itype, rarity, icon, source, "")
+                (name, cat, itype, rarity, icon, source, ""),
             )
             new_id = cur.lastrowid
-            db.execute("""
-                INSERT OR IGNORE INTO character_blueprints (character_id, blueprint_id, learned, acquired_count)
-                SELECT id, ?, 0, 0 FROM characters
-            """, (new_id,))
             inserted += 1
-        except sqlite3.IntegrityError:
-            pass
+        db.execute("""
+            INSERT OR IGNORE INTO character_blueprints (character_id, blueprint_id, learned, acquired_count)
+            SELECT id, ?, 0, 0 FROM characters
+        """, (new_id,))
     db.commit()
-    return jsonify({"seeded": inserted, "total": len(blueprints)})
+    return jsonify({"inserted": inserted, "updated": updated, "total": len(blueprints)})
 
 
 # ── Migration status endpoint ─────────────────────────────────────────────────
