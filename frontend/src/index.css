@@ -44,6 +44,48 @@
   --radius-lg: 6px;
 }
 
+/* ── Light (day) theme ── */
+[data-theme="light"] {
+  --bg-void: #e8edf2;
+  --bg-dark: #f0f4f8;
+  --bg-panel: #ffffff;
+  --bg-card: #f7f9fb;
+  --bg-hover: #e2eaf2;
+  --bg-active: #d4e4f0;
+
+  --border: #c0cdd8;
+  --border-bright: #8aaec8;
+  --border-accent: #b87010;
+
+  --text-primary: #1a2a38;
+  --text-secondary: #3a6080;
+  --text-muted: #7090a8;
+  --text-accent: #b87010;
+  --text-accent2: #1878a8;
+
+  --amber: #b87010;
+  --amber-dark: #8a5008;
+  --amber-glow: rgba(184, 112, 16, 0.12);
+  --cyan: #1878a8;
+  --cyan-dark: #0f5880;
+  --cyan-glow: rgba(24, 120, 168, 0.12);
+
+  --status-not: #dde6ee;
+  --status-not-text: #5a7a90;
+  --status-acquired: #d4f0e0;
+  --status-acquired-text: #1a8048;
+  --status-learned: #fdefd4;
+  --status-learned-text: #b87010;
+
+  --rarity-common: #3a6080;
+  --rarity-uncommon: #1a7840;
+  --rarity-rare: #1850b8;
+  --rarity-epic: #7828b8;
+  --rarity-legendary: #b87010;
+}
+
+[data-theme="light"] body::before { display: none; }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { font-size: 14px; }
