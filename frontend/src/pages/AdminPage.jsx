@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../api.js";
 import { useToast } from "../Toast.jsx";
+import BlueprintIcon from "../BlueprintIcon.jsx";
 
 // ── Generic confirm modal ─────────────────────────────────────────────────
 function ConfirmModal({ msg, onConfirm, onCancel }) {
@@ -326,7 +327,7 @@ export default function AdminPage() {
                 <tbody>
                   {filteredBps.map((b) => (
                     <tr key={b.id}>
-                      <td style={{ textAlign: "center", fontSize: "1.1rem" }}>{b.icon || "📋"}</td>
+                      <td style={{ textAlign: "center" }}><BlueprintIcon icon={b.icon} icon_url={b.icon_url} size={28} /></td>
                       <td style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>{b.name}</td>
                       <td><span className="tag">{b.category}</span></td>
                       <td className="text-muted text-sm">{b.item_type || "—"}</td>

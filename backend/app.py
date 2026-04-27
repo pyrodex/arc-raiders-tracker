@@ -111,12 +111,220 @@ def _m004_migrate_legacy_status_values(db):
         pass  # status column does not exist — nothing to migrate
 
 
+def _m005_backfill_blueprint_icons(db):
+    """Set correct per-item icons for all seeded blueprints that still have the default 📋."""
+    icon_map = [
+        # Weapons
+        ("Anvil",                      "🔫"),
+        ("Aphelion",                   "🎯"),
+        ("Bettina",                    "🔫"),
+        ("Bobcat",                     "🔫"),
+        ("Burletta",                   "🔫"),
+        ("Canto",                      "🔫"),
+        ("Deadline",                   "🎯"),
+        ("Dolabra",                    "🔫"),
+        ("Equalizer",                  "🔫"),
+        ("Hullcracker",                "🔫"),
+        ("Il Toro",                    "🔫"),
+        ("Jupiter",                    "🔫"),
+        ("Osprey",                     "🎯"),
+        ("Showstopper",                "🔫"),
+        ("Tempest I",                  "🔫"),
+        ("Torrente",                   "🔫"),
+        ("Venator",                    "🔫"),
+        ("Vulcano",                    "🔫"),
+        ("Wolfpack",                   "🔫"),
+        # Attachments
+        ("Angled Grip II",             "🔧"),
+        ("Angled Grip III",            "🔧"),
+        ("Compensator II",             "🔧"),
+        ("Compensator III",            "🔧"),
+        ("Extended Barrel",            "🔧"),
+        ("Extended Light Mag II",      "🔧"),
+        ("Extended Light Mag III",     "🔧"),
+        ("Extended Medium Mag II",     "🔧"),
+        ("Extended Medium Mag III",    "🔧"),
+        ("Extended Shotgun Mag II",    "🔧"),
+        ("Extended Shotgun Mag III",   "🔧"),
+        ("Lightweight Stock",          "🔧"),
+        ("Muzzle Brake II",            "🔧"),
+        ("Muzzle Brake III",           "🔧"),
+        ("Padded Stock",               "🔧"),
+        ("Shotgun Choke II",           "🔧"),
+        ("Shotgun Choke III",          "🔧"),
+        ("Shotgun Silencer",           "🔧"),
+        ("Silencer I",                 "🔧"),
+        ("Silencer II",                "🔧"),
+        ("Stable Stock II",            "🔧"),
+        ("Stable Stock III",           "🔧"),
+        ("Vertical Grip II",           "🔧"),
+        ("Vertical Grip III",          "🔧"),
+        # Grenades & Mines
+        ("Blaze Grenade",              "💥"),
+        ("Explosive Mine",             "💥"),
+        ("Fireworks Box",              "🎆"),
+        ("Gas Mine",                   "☣️"),
+        ("Jolt Mine",                  "⚡"),
+        ("Lure Grenade",               "💥"),
+        ("Pulse Mine",                 "💥"),
+        ("Seeker Grenade",             "💥"),
+        ("Smoke Grenade",              "💥"),
+        ("Tagging Grenade",            "💥"),
+        ("Trailblazer Grenade",        "💥"),
+        ("Trigger Nade",               "💥"),
+        # Tactical
+        ("Barricade Kit",              "🛡️"),
+        ("Defibrillator",              "🛡️"),
+        ("Remote Raider Flare",        "🛡️"),
+        ("Snap Hook",                  "🛡️"),
+        ("Surge Coil",                 "⚡"),
+        # Medical
+        ("Vita Shot",                  "💊"),
+        ("Vita Spray",                 "💊"),
+        # Augments
+        ("Combat Mk. 3 (Aggressive)",  "⚡"),
+        ("Combat Mk. 3 (Flanking)",    "⚡"),
+        ("Looting Mk. 3 (Safekeeper)", "⚡"),
+        ("Looting Mk. 3 (Survivor)",   "⚡"),
+        ("Tactical Mk. 3 (Defensive)", "⚡"),
+        ("Tactical Mk. 3 (Healing)",   "⚡"),
+        ("Tactical Mk. 3 (Revival)",   "⚡"),
+        # Crafting Materials
+        ("Complex Gun Parts",          "⚙️"),
+        ("Heavy Gun Parts",            "⚙️"),
+        ("Light Gun Parts",            "⚙️"),
+        ("Medium Gun Parts",           "⚙️"),
+        # Light Sticks
+        ("Blue Light Stick",           "🔵"),
+        ("Green Light Stick",          "🟢"),
+        ("Red Light Stick",            "🔴"),
+        ("Yellow Light Stick",         "🟡"),
+    ]
+    for name, icon in icon_map:
+        db.execute(
+            "UPDATE blueprints SET icon=? WHERE name=? AND (icon IS NULL OR icon='' OR icon='📋')",
+            (icon, name),
+        )
+
+
+def _m006_blueprints_add_icon_url(db):
+    """Add icon_url column to blueprints for full-size wiki images."""
+    try:
+        db.execute("ALTER TABLE blueprints ADD COLUMN icon_url TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass  # column already present
+
+
+def _m007_url_map():
+    """Return the canonical (name, icon_url) pairs for all seeded blueprints."""
+    BASE = "https://arcraiders.wiki/w/images"
+    return [
+        # ── Weapons ────────────────────────────────────────────────────────
+        ("Anvil",                      f"{BASE}/0/00/Anvil-Level1.png"),
+        ("Aphelion",                   f"{BASE}/8/88/Aphelion.png"),
+        ("Bettina",                    f"{BASE}/a/ac/Bettina.png"),
+        ("Bobcat",                     f"{BASE}/3/36/Bobcat-Level1.png"),
+        ("Burletta",                   f"{BASE}/d/d4/Burletta-Level1.png"),
+        ("Canto",                      f"{BASE}/8/83/Canto-Level1.png"),
+        ("Deadline",                   f"{BASE}/c/c7/Deadline.png"),
+        ("Dolabra",                    f"{BASE}/0/07/Dolabra-Level1.png"),
+        ("Equalizer",                  f"{BASE}/9/96/Equalizer.png"),
+        ("Hullcracker",                f"{BASE}/b/ba/Hullcracker-Level1.png"),
+        ("Il Toro",                    f"{BASE}/5/50/Il_Toro-Level1.png"),
+        ("Jupiter",                    f"{BASE}/6/68/Jupiter.png"),
+        ("Osprey",                     f"{BASE}/a/ae/Osprey-Level1.png"),
+        ("Showstopper",                f"{BASE}/1/18/Showstopper.png"),
+        ("Tempest I",                  f"{BASE}/3/36/Bobcat-Level1.png"),   # no Tempest image on wiki yet; use placeholder
+        ("Torrente",                   f"{BASE}/1/1e/Torrente-Level1.png"),
+        ("Venator",                    f"{BASE}/b/b4/Venator-Level1.png"),
+        ("Vulcano",                    f"{BASE}/d/da/Vulcano-Level1.png"),
+        ("Wolfpack",                   f"{BASE}/2/24/Wolfpack.png"),
+        # ── Attachments ────────────────────────────────────────────────────
+        ("Angled Grip II",             f"{BASE}/2/2b/Angled_Grip_II.png"),
+        ("Angled Grip III",            f"{BASE}/0/0f/Angled_Grip_III.png"),
+        ("Compensator II",             f"{BASE}/0/0a/Compensator_II.png"),
+        ("Compensator III",            f"{BASE}/a/af/Compensator_III.png"),
+        ("Extended Barrel",            f"{BASE}/2/2f/Extended_Barrel.png"),
+        ("Extended Light Mag II",      f"{BASE}/c/cf/Extended_Light_Mag_II.png"),
+        ("Extended Light Mag III",     f"{BASE}/4/40/Extended_Light_Mag_III.png"),
+        ("Extended Medium Mag II",     f"{BASE}/5/50/Extended_Medium_Mag_II.png"),
+        ("Extended Medium Mag III",    f"{BASE}/a/a1/Extended_Medium_Mag_III.png"),
+        ("Extended Shotgun Mag II",    f"{BASE}/4/4f/Extended_Shotgun_Mag_II.png"),
+        ("Extended Shotgun Mag III",   f"{BASE}/7/77/Extended_Shotgun_Mag_III.png"),
+        ("Lightweight Stock",          f"{BASE}/c/cb/Lightweight_Stock.png"),
+        ("Muzzle Brake II",            f"{BASE}/2/23/Muzzle_Brake_II.png"),
+        ("Muzzle Brake III",           f"{BASE}/a/a2/Muzzle_Brake_III.png"),
+        ("Padded Stock",               f"{BASE}/4/4b/Padded_Stock.png"),
+        ("Shotgun Choke II",           f"{BASE}/6/63/Shotgun_Choke_II.png"),
+        ("Shotgun Choke III",          f"{BASE}/3/36/Shotgun_Choke_III.png"),
+        ("Shotgun Silencer",           f"{BASE}/4/4d/Shotgun_Silencer.png"),
+        ("Silencer I",                 f"{BASE}/f/f7/Silencer_I.png"),
+        ("Silencer II",                f"{BASE}/c/c0/Silencer_II.png"),
+        ("Stable Stock II",            f"{BASE}/b/b4/Stable_Stock_II.png"),
+        ("Stable Stock III",           f"{BASE}/e/eb/Stable_Stock_III.png"),
+        ("Vertical Grip II",           f"{BASE}/3/3c/Vertical_Grip_II.png"),
+        ("Vertical Grip III",          f"{BASE}/2/20/Vertical_Grip_III.png"),
+        # ── Grenades & Mines ───────────────────────────────────────────────
+        ("Blaze Grenade",              f"{BASE}/2/24/Blaze_Grenade.png"),
+        ("Explosive Mine",             f"{BASE}/2/22/Explosive_Mine.png"),
+        ("Fireworks Box",              f"{BASE}/0/0f/Fireworks_Box.png"),
+        ("Gas Mine",                   f"{BASE}/c/ce/Gas_Mine.png"),
+        ("Jolt Mine",                  f"{BASE}/5/5a/Jolt_Mine.png"),
+        ("Lure Grenade",               f"{BASE}/7/77/Lure_Grenade.png"),
+        ("Pulse Mine",                 f"{BASE}/a/af/Pulse_Mine.png"),
+        ("Seeker Grenade",             f"{BASE}/3/35/Seeker_Grenade.png"),
+        ("Smoke Grenade",              f"{BASE}/d/d5/Smoke_Grenade.png"),
+        ("Tagging Grenade",            f"{BASE}/e/e5/Tagging_Grenade.png"),
+        ("Trailblazer Grenade",        f"{BASE}/8/89/Trailblazer.png"),
+        ("Trigger Nade",               f"{BASE}/0/09/Trigger_Nade.png"),
+        # ── Tactical ───────────────────────────────────────────────────────
+        ("Barricade Kit",              f"{BASE}/c/cb/Barricade_Kit.png"),
+        ("Defibrillator",              f"{BASE}/5/5f/Defibrillator.png"),
+        ("Remote Raider Flare",        f"{BASE}/f/ff/Remote_Raider_Flare.png"),
+        ("Snap Hook",                  f"{BASE}/5/56/Snap_Hook.png"),
+        ("Surge Coil",                 f"{BASE}/5/5b/Surge_Coil.png"),
+        # ── Medical ────────────────────────────────────────────────────────
+        ("Vita Shot",                  f"{BASE}/7/7d/Vita_Shot.png"),
+        ("Vita Spray",                 f"{BASE}/1/1d/Vita_Spray.png"),
+        # ── Augments ───────────────────────────────────────────────────────
+        ("Combat Mk. 3 (Aggressive)",  f"{BASE}/a/a4/Combat_Mk._3_%28Aggressive%29.png"),
+        ("Combat Mk. 3 (Flanking)",    f"{BASE}/7/73/Combat_Mk._3_%28Flanking%29.png"),
+        ("Looting Mk. 3 (Safekeeper)", f"{BASE}/c/c6/Looting_Mk._3_%28Safekeeper%29.png"),
+        ("Looting Mk. 3 (Survivor)",   f"{BASE}/7/74/Looting_Mk._3_%28Survivor%29.png"),
+        ("Tactical Mk. 3 (Defensive)", f"{BASE}/a/a9/Tactical_Mk._3_%28Defensive%29.png"),
+        ("Tactical Mk. 3 (Healing)",   f"{BASE}/1/12/Tactical_Mk._3_%28Healing%29.png"),
+        ("Tactical Mk. 3 (Revival)",   f"{BASE}/e/e0/Tactical_Mk._3_%28Revival%29.png"),
+        # ── Crafting Materials ─────────────────────────────────────────────
+        ("Complex Gun Parts",          f"{BASE}/3/3d/Complex_Gun_Parts.png"),
+        ("Heavy Gun Parts",            f"{BASE}/3/33/Heavy_Gun_Parts.png"),
+        ("Light Gun Parts",            f"{BASE}/c/c9/Light_Gun_Parts.png"),
+        ("Medium Gun Parts",           f"{BASE}/9/9a/Medium_Gun_Parts.png"),
+        # ── Light Sticks ───────────────────────────────────────────────────
+        ("Blue Light Stick",           f"{BASE}/c/cc/Blue_Light_Stick.png"),
+        ("Green Light Stick",          f"{BASE}/2/27/Green_Light_Stick.png"),
+        ("Red Light Stick",            f"{BASE}/9/93/Red_Light_Stick.png"),
+        ("Yellow Light Stick",         f"{BASE}/1/1f/Yellow_Light_Stick.png"),
+    ]
+
+
+def _m007_backfill_blueprint_icon_urls(db):
+    """Populate icon_url from arcraiders.wiki for all seeded blueprints."""
+    for name, url in _m007_url_map():
+        db.execute(
+            "UPDATE blueprints SET icon_url=? WHERE name=? AND (icon_url IS NULL OR icon_url='')",
+            (url, name),
+        )
+
+
 # Ordered list of all migrations.  Append new entries here as the schema evolves.
 MIGRATIONS = [
     (1, "initial_schema",                       _m001_initial_schema),
     (2, "blueprints_icon_source",               _m002_blueprints_icon_source),
     (3, "character_blueprints_learned_acquired", _m003_character_blueprints_learned_acquired),
     (4, "migrate_legacy_status_values",          _m004_migrate_legacy_status_values),
+    (5, "backfill_blueprint_icons",              _m005_backfill_blueprint_icons),
+    (6, "blueprints_add_icon_url",               _m006_blueprints_add_icon_url),
+    (7, "backfill_blueprint_icon_urls",          _m007_backfill_blueprint_icon_urls),
 ]
 
 
@@ -429,7 +637,7 @@ def report_character_summary():
 def report_blueprint_coverage():
     db = get_db()
     total_chars = db.execute("SELECT COUNT(*) AS c FROM characters").fetchone()["c"]
-    bps = db.execute("SELECT id, name, category, rarity, icon FROM blueprints ORDER BY category, name").fetchall()
+    bps = db.execute("SELECT id, name, category, rarity, icon, icon_url FROM blueprints ORDER BY category, name").fetchall()
     result = []
     for bp in bps:
         row = db.execute("""
@@ -446,6 +654,7 @@ def report_blueprint_coverage():
         result.append({
             "id": bp["id"], "name": bp["name"],
             "category": bp["category"], "rarity": bp["rarity"],
+            "icon": bp["icon"], "icon_url": bp["icon_url"],
             "total_chars": total_chars,
             "learned": lrn, "acquired_only": acq_o,
             "missing": total_chars - lrn - acq_o,
@@ -478,8 +687,8 @@ def report_chars_with_blueprint():
 @app.route("/api/reports/unique-blueprints", methods=["GET"])
 def report_unique_blueprints():
     db = get_db()
-        rows = db.execute("""
-        SELECT b.id, b.name, b.category, b.rarity, b.icon,
+    rows = db.execute("""
+        SELECT b.id, b.name, b.category, b.rarity, b.icon, b.icon_url,
                c.id AS char_id, c.name AS char_name, c.class AS char_class
         FROM blueprints b
         JOIN character_blueprints cb ON cb.blueprint_id=b.id AND cb.learned=1
@@ -496,7 +705,7 @@ def report_extras():
     db = get_db()
     rows = db.execute("""
         SELECT c.id AS char_id, c.name AS char_name, c.class AS char_class,
-               b.id AS bp_id, b.name AS bp_name, b.category, b.rarity, b.icon,
+               b.id AS bp_id, b.name AS bp_name, b.category, b.rarity, b.icon, b.icon_url,
                cb.learned, cb.acquired_count,
                CASE WHEN cb.learned=1 THEN cb.acquired_count
                     ELSE MAX(0, cb.acquired_count-1) END AS extras
@@ -619,23 +828,34 @@ def seed_sample_data():
         ("Red Light Stick",           "Light Sticks", "Cosmetic", "Common", "🔴", "All maps — Residential Containers"),
         ("Yellow Light Stick",        "Light Sticks", "Cosmetic", "Common", "🟡", "All maps — Residential Containers"),
     ]
+    # Build icon_url lookup from the migration map so seed and migration stay in sync
+    icon_url_lookup = {name: url for name, url in _m007_url_map()}
+
     inserted = 0
+    updated = 0
     for (name, cat, itype, rarity, icon, source) in blueprints:
-        try:
+        icon_url = icon_url_lookup.get(name, "")
+        existing = db.execute("SELECT id FROM blueprints WHERE name=?", (name,)).fetchone()
+        if existing:
+            db.execute(
+                "UPDATE blueprints SET category=?, item_type=?, rarity=?, icon=?, source=?, icon_url=? WHERE id=?",
+                (cat, itype, rarity, icon, source, icon_url, existing["id"]),
+            )
+            updated += 1
+            new_id = existing["id"]
+        else:
             cur = db.execute(
-                "INSERT INTO blueprints (name, category, item_type, rarity, icon, source, description) VALUES (?,?,?,?,?,?,?)",
-                (name, cat, itype, rarity, icon, source, "")
+                "INSERT INTO blueprints (name, category, item_type, rarity, icon, source, description, icon_url) VALUES (?,?,?,?,?,?,?,?)",
+                (name, cat, itype, rarity, icon, source, "", icon_url),
             )
             new_id = cur.lastrowid
-            db.execute("""
-                INSERT OR IGNORE INTO character_blueprints (character_id, blueprint_id, learned, acquired_count)
-                SELECT id, ?, 0, 0 FROM characters
-            """, (new_id,))
             inserted += 1
-        except sqlite3.IntegrityError:
-            pass
+        db.execute("""
+            INSERT OR IGNORE INTO character_blueprints (character_id, blueprint_id, learned, acquired_count)
+            SELECT id, ?, 0, 0 FROM characters
+        """, (new_id,))
     db.commit()
-    return jsonify({"seeded": inserted, "total": len(blueprints)})
+    return jsonify({"inserted": inserted, "updated": updated, "total": len(blueprints)})
 
 
 # ── Migration status endpoint ─────────────────────────────────────────────────
