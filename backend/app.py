@@ -429,7 +429,7 @@ def report_character_summary():
 def report_blueprint_coverage():
     db = get_db()
     total_chars = db.execute("SELECT COUNT(*) AS c FROM characters").fetchone()["c"]
-    bps = db.execute("SELECT id, name, category, rarity FROM blueprints ORDER BY category, name").fetchall()
+    bps = db.execute("SELECT id, name, category, rarity, icon FROM blueprints ORDER BY category, name").fetchall()
     result = []
     for bp in bps:
         row = db.execute("""
@@ -478,8 +478,8 @@ def report_chars_with_blueprint():
 @app.route("/api/reports/unique-blueprints", methods=["GET"])
 def report_unique_blueprints():
     db = get_db()
-    rows = db.execute("""
-        SELECT b.id, b.name, b.category, b.rarity,
+        rows = db.execute("""
+        SELECT b.id, b.name, b.category, b.rarity, b.icon,
                c.id AS char_id, c.name AS char_name, c.class AS char_class
         FROM blueprints b
         JOIN character_blueprints cb ON cb.blueprint_id=b.id AND cb.learned=1
