@@ -316,6 +316,104 @@ def _m007_backfill_blueprint_icon_urls(db):
         )
 
 
+def _m008_local_map():
+    """Return (name, local_icon_url) pairs using the bundled static images."""
+    P = "/images/blueprints"
+    return [
+        # ── Weapons ────────────────────────────────────────────────────────
+        ("Anvil",                      f"{P}/Anvil.png"),
+        ("Aphelion",                   f"{P}/Aphelion.png"),
+        ("Bettina",                    f"{P}/Bettina.png"),
+        ("Bobcat",                     f"{P}/Bobcat.png"),
+        ("Burletta",                   f"{P}/Burletta.png"),
+        ("Canto",                      f"{P}/Canto.png"),
+        ("Deadline",                   f"{P}/Deadline.png"),
+        ("Dolabra",                    f"{P}/Dolabra.png"),
+        ("Equalizer",                  f"{P}/Equalizer.png"),
+        ("Hullcracker",                f"{P}/Hullcracker.png"),
+        ("Il Toro",                    f"{P}/Il_Toro.png"),
+        ("Jupiter",                    f"{P}/Jupiter.png"),
+        ("Osprey",                     f"{P}/Osprey.png"),
+        ("Showstopper",                f"{P}/Showstopper.png"),
+        ("Tempest I",                  f"{P}/Tempest_I.png"),
+        ("Torrente",                   f"{P}/Torrente.png"),
+        ("Venator",                    f"{P}/Venator.png"),
+        ("Vulcano",                    f"{P}/Vulcano.png"),
+        ("Wolfpack",                   f"{P}/Wolfpack.png"),
+        # ── Attachments ────────────────────────────────────────────────────
+        ("Angled Grip II",             f"{P}/Angled_Grip_II.png"),
+        ("Angled Grip III",            f"{P}/Angled_Grip_III.png"),
+        ("Compensator II",             f"{P}/Compensator_II.png"),
+        ("Compensator III",            f"{P}/Compensator_III.png"),
+        ("Extended Barrel",            f"{P}/Extended_Barrel.png"),
+        ("Extended Light Mag II",      f"{P}/Extended_Light_Mag_II.png"),
+        ("Extended Light Mag III",     f"{P}/Extended_Light_Mag_III.png"),
+        ("Extended Medium Mag II",     f"{P}/Extended_Medium_Mag_II.png"),
+        ("Extended Medium Mag III",    f"{P}/Extended_Medium_Mag_III.png"),
+        ("Extended Shotgun Mag II",    f"{P}/Extended_Shotgun_Mag_II.png"),
+        ("Extended Shotgun Mag III",   f"{P}/Extended_Shotgun_Mag_III.png"),
+        ("Lightweight Stock",          f"{P}/Lightweight_Stock.png"),
+        ("Muzzle Brake II",            f"{P}/Muzzle_Brake_II.png"),
+        ("Muzzle Brake III",           f"{P}/Muzzle_Brake_III.png"),
+        ("Padded Stock",               f"{P}/Padded_Stock.png"),
+        ("Shotgun Choke II",           f"{P}/Shotgun_Choke_II.png"),
+        ("Shotgun Choke III",          f"{P}/Shotgun_Choke_III.png"),
+        ("Shotgun Silencer",           f"{P}/Shotgun_Silencer.png"),
+        ("Silencer I",                 f"{P}/Silencer_I.png"),
+        ("Silencer II",                f"{P}/Silencer_II.png"),
+        ("Stable Stock II",            f"{P}/Stable_Stock_II.png"),
+        ("Stable Stock III",           f"{P}/Stable_Stock_III.png"),
+        ("Vertical Grip II",           f"{P}/Vertical_Grip_II.png"),
+        ("Vertical Grip III",          f"{P}/Vertical_Grip_III.png"),
+        # ── Grenades & Mines ───────────────────────────────────────────────
+        ("Blaze Grenade",              f"{P}/Blaze_Grenade.png"),
+        ("Explosive Mine",             f"{P}/Explosive_Mine.png"),
+        ("Fireworks Box",              f"{P}/Fireworks_Box.png"),
+        ("Gas Mine",                   f"{P}/Gas_Mine.png"),
+        ("Jolt Mine",                  f"{P}/Jolt_Mine.png"),
+        ("Lure Grenade",               f"{P}/Lure_Grenade.png"),
+        ("Pulse Mine",                 f"{P}/Pulse_Mine.png"),
+        ("Seeker Grenade",             f"{P}/Seeker_Grenade.png"),
+        ("Smoke Grenade",              f"{P}/Smoke_Grenade.png"),
+        ("Tagging Grenade",            f"{P}/Tagging_Grenade.png"),
+        ("Trailblazer Grenade",        f"{P}/Trailblazer_Grenade.png"),
+        ("Trigger Nade",               f"{P}/Trigger_Nade.png"),
+        # ── Tactical ───────────────────────────────────────────────────────
+        ("Barricade Kit",              f"{P}/Barricade_Kit.png"),
+        ("Defibrillator",              f"{P}/Defibrillator.png"),
+        ("Remote Raider Flare",        f"{P}/Remote_Raider_Flare.png"),
+        ("Snap Hook",                  f"{P}/Snap_Hook.png"),
+        ("Surge Coil",                 f"{P}/Surge_Coil.png"),
+        # ── Medical ────────────────────────────────────────────────────────
+        ("Vita Shot",                  f"{P}/Vita_Shot.png"),
+        ("Vita Spray",                 f"{P}/Vita_Spray.png"),
+        # ── Augments ───────────────────────────────────────────────────────
+        ("Combat Mk. 3 (Aggressive)",  f"{P}/Combat_Mk3_Aggressive.png"),
+        ("Combat Mk. 3 (Flanking)",    f"{P}/Combat_Mk3_Flanking.png"),
+        ("Looting Mk. 3 (Safekeeper)", f"{P}/Looting_Mk3_Safekeeper.png"),
+        ("Looting Mk. 3 (Survivor)",   f"{P}/Looting_Mk3_Survivor.png"),
+        ("Tactical Mk. 3 (Defensive)", f"{P}/Tactical_Mk3_Defensive.png"),
+        ("Tactical Mk. 3 (Healing)",   f"{P}/Tactical_Mk3_Healing.png"),
+        ("Tactical Mk. 3 (Revival)",   f"{P}/Tactical_Mk3_Revival.png"),
+        # ── Crafting Materials ─────────────────────────────────────────────
+        ("Complex Gun Parts",          f"{P}/Complex_Gun_Parts.png"),
+        ("Heavy Gun Parts",            f"{P}/Heavy_Gun_Parts.png"),
+        ("Light Gun Parts",            f"{P}/Light_Gun_Parts.png"),
+        ("Medium Gun Parts",           f"{P}/Medium_Gun_Parts.png"),
+        # ── Light Sticks ───────────────────────────────────────────────────
+        ("Blue Light Stick",           f"{P}/Blue_Light_Stick.png"),
+        ("Green Light Stick",          f"{P}/Green_Light_Stick.png"),
+        ("Red Light Stick",            f"{P}/Red_Light_Stick.png"),
+        ("Yellow Light Stick",         f"{P}/Yellow_Light_Stick.png"),
+    ]
+
+
+def _m008_switch_icon_urls_to_local(db):
+    """Replace remote wiki URLs with local static-asset paths for all seeded blueprints."""
+    for name, local_url in _m008_local_map():
+        db.execute("UPDATE blueprints SET icon_url=? WHERE name=?", (local_url, name))
+
+
 # Ordered list of all migrations.  Append new entries here as the schema evolves.
 MIGRATIONS = [
     (1, "initial_schema",                       _m001_initial_schema),
@@ -325,6 +423,7 @@ MIGRATIONS = [
     (5, "backfill_blueprint_icons",              _m005_backfill_blueprint_icons),
     (6, "blueprints_add_icon_url",               _m006_blueprints_add_icon_url),
     (7, "backfill_blueprint_icon_urls",          _m007_backfill_blueprint_icon_urls),
+    (8, "switch_icon_urls_to_local",             _m008_switch_icon_urls_to_local),
 ]
 
 
@@ -828,8 +927,8 @@ def seed_sample_data():
         ("Red Light Stick",           "Light Sticks", "Cosmetic", "Common", "🔴", "All maps — Residential Containers"),
         ("Yellow Light Stick",        "Light Sticks", "Cosmetic", "Common", "🟡", "All maps — Residential Containers"),
     ]
-    # Build icon_url lookup from the migration map so seed and migration stay in sync
-    icon_url_lookup = {name: url for name, url in _m007_url_map()}
+    # Build icon_url lookup from the local-path map so seed and migration stay in sync
+    icon_url_lookup = {name: url for name, url in _m008_local_map()}
 
     inserted = 0
     updated = 0
