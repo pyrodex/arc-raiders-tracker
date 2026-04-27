@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../api.js";
+import BlueprintIcon from "../BlueprintIcon.jsx";
 
 function ProgressBar({ pct, color }) {
   return (
@@ -121,7 +122,7 @@ function BlueprintCoverageReport() {
           <tbody>
             {sorted.map((b) => (
               <tr key={b.id} style={{ opacity: b.missing === b.total_chars && b.total_chars > 0 ? 0.5 : 1 }}>
-                <td style={{ textAlign: "center", fontSize: "1rem", width: 32 }}>{b.icon || "📋"}</td>
+                <td style={{ textAlign: "center", width: 36 }}><BlueprintIcon icon={b.icon} icon_url={b.icon_url} size={24} /></td>
                 <td style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem" }}>{b.name}</td>
                 <td><span className="tag">{b.category}</span></td>
                 <td><span className={`rarity rarity-${b.rarity}`}>{b.rarity}</span></td>
@@ -201,8 +202,9 @@ function MissingBlueprintReport() {
       {result && (
         <div className="panel">
           <div className="panel-header">
-            <span className="panel-title">
-              {result.blueprint.icon || "📋"} Characters missing: {result.blueprint.name}
+                    <span className="panel-title" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <BlueprintIcon icon={result.blueprint.icon} icon_url={result.blueprint.icon_url} size={20} />
+              Characters missing: {result.blueprint.name}
             </span>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)" }}>
               {result.missing_count} character{result.missing_count !== 1 ? "s" : ""}
@@ -282,7 +284,7 @@ function UniqueBlueprintsReport() {
               <tbody>
                 {data.map((r) => (
                   <tr key={`${r.id}-${r.char_id}`}>
-                    <td style={{ textAlign: "center", fontSize: "1rem", width: 32 }}>{r.icon || "📋"}</td>
+                    <td style={{ textAlign: "center", width: 36 }}><BlueprintIcon icon={r.icon} icon_url={r.icon_url} size={24} /></td>
                     <td style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem" }}>{r.name}</td>
                     <td><span className="tag">{r.category}</span></td>
                     <td><span className={`rarity rarity-${r.rarity}`}>{r.rarity}</span></td>
@@ -352,7 +354,7 @@ function SearchReport() {
                 <tbody>
                   {result.blueprints.map((b) => (
                     <tr key={b.id}>
-                      <td style={{ textAlign: "center", fontSize: "1rem", width: 32 }}>{b.icon || "📋"}</td>
+                      <td style={{ textAlign: "center", width: 36 }}><BlueprintIcon icon={b.icon} icon_url={b.icon_url} size={24} /></td>
                       <td style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem" }}>{b.name}</td>
                       <td><span className="tag">{b.category}</span></td>
                       <td><span className={`rarity rarity-${b.rarity}`}>{b.rarity}</span></td>
@@ -453,7 +455,7 @@ function ExtrasReport() {
               <tbody>
                 {filtered.map((r, i) => (
                   <tr key={i}>
-                    <td style={{ textAlign: "center", fontSize: "1rem" }}>{r.icon}</td>
+                    <td style={{ textAlign: "center", width: 36 }}><BlueprintIcon icon={r.icon} icon_url={r.icon_url} size={24} /></td>
                     <td style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem" }}>{r.bp_name}</td>
                     <td><span className="tag">{r.category}</span></td>
                     <td>

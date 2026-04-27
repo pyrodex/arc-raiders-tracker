@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../api.js";
 import { useToast } from "../Toast.jsx";
+import BlueprintIcon from "../BlueprintIcon.jsx";
 
 // ── small inline CSS additions ──────────────────────────────────────────────
 const extrasBadgeStyle = {
@@ -56,7 +57,7 @@ function BpCard({ bp, pending, onChange }) {
     <div className={`bp-card ${cardClass}`}>
       {/* Name row */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: "0.35rem" }}>
-        <span style={{ fontSize: "1rem", lineHeight: 1.2, flexShrink: 0 }}>{bp.icon || "📋"}</span>
+        <BlueprintIcon icon={bp.icon} icon_url={bp.icon_url} size={22} />
         <div style={{
           fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem",
           color: isDirty ? "var(--amber)" : "var(--text-primary)", lineHeight: 1.2, flex: 1,
