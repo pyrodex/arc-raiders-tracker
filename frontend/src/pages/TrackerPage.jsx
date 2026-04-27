@@ -55,21 +55,35 @@ function BpCard({ bp, pending, onChange }) {
 
   return (
     <div className={`bp-card ${cardClass}`}>
+      {/* Icon banner */}
+      <div style={{
+        display: "flex", justifyContent: "center", alignItems: "center",
+        background: "var(--bg-dark)", borderRadius: "var(--radius)",
+        padding: "0.5rem", marginBottom: "0.1rem", minHeight: 72,
+        position: "relative",
+      }}>
+        <BlueprintIcon icon={bp.icon} icon_url={bp.icon_url} size={64} />
+        {ext > 0 && (
+          <span style={{ ...extrasBadgeStyle, position: "absolute", top: 4, right: 4 }}>
+            +{ext} extra{ext !== 1 ? "s" : ""}
+          </span>
+        )}
+        {isDirty && (
+          <span style={{ position: "absolute", top: 4, left: 6, color: "var(--amber)", fontSize: "0.55rem" }}>●</span>
+        )}
+      </div>
+
       {/* Name row */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "0.35rem" }}>
-        <BlueprintIcon icon={bp.icon} icon_url={bp.icon_url} size={22} />
-        <div style={{
-          fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem",
-          color: isDirty ? "var(--amber)" : "var(--text-primary)", lineHeight: 1.2, flex: 1,
-        }}>
-          {bp.name}
-          {isDirty && <span style={{ color: "var(--amber)", marginLeft: "0.3rem", fontSize: "0.6rem" }}>●</span>}
-        </div>
-        {ext > 0 && <span style={extrasBadgeStyle}>+{ext} extra{ext !== 1 ? "s" : ""}</span>}
+      <div style={{
+        fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem",
+        color: isDirty ? "var(--amber)" : "var(--text-primary)", lineHeight: 1.2,
+        textAlign: "center",
+      }}>
+        {bp.name}
       </div>
 
       {/* Meta */}
-      <div className="bp-card-meta">
+      <div className="bp-card-meta" style={{ justifyContent: "center", flexWrap: "wrap" }}>
         <span className="tag">{bp.category}</span>
         {bp.item_type && <span>{bp.item_type}</span>}
         <span className={`rarity rarity-${bp.rarity}`}>{bp.rarity}</span>
