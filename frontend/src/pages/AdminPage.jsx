@@ -67,11 +67,29 @@ function CharacterModal({ initial, onSave, onClose }) {
 // ── Blueprint Form Modal ──────────────────────────────────────────────────
 const RARITIES = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
 
+const CATEGORIES = ["Weapons", "Mods", "Grenades", "Mines", "Quick Use", "Augments", "Materials"];
+
+const ITEM_TYPES = {
+  Weapons:    ["Assault Rifle", "Battle Rifle", "Beam Rifle", "Grenade Launcher", "Hand Cannon", "LMG", "Pistol", "Shotgun", "SMG", "Sniper Rifle"],
+  Mods:       ["Barrel", "Grip", "Magazine", "Muzzle", "Stock"],
+  Grenades:   ["Grenade"],
+  Mines:      ["Mine"],
+  "Quick Use":["Quick Use"],
+  Augments:   ["Augment"],
+  Materials:  ["Material"],
+};
+
 function BlueprintModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(
-    initial || { name: "", category: "Uncategorized", item_type: "", rarity: "Common", icon: "📋", description: "" }
+    initial || { name: "", category: "Weapons", item_type: "Assault Rifle", rarity: "Epic", icon: "📋", description: "" }
   );
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  function handleCategoryChange(e) {
+    const cat = e.target.value;
+    const types = ITEM_TYPES[cat] || [];
+    setForm((f) => ({ ...f, category: cat, item_type: types[0] || "" }));
+  }
 
   return (
     <div className="modal-backdrop">
@@ -91,7 +109,7 @@ function BlueprintModal({ initial, onSave, onClose }) {
               <input className="form-input" value={form.icon} onChange={set("icon")} placeholder="📋" style={{ textAlign: "center", fontSize: "1.1rem" }} />
             </div>
             <div className="form-group">
-              <label className="form-label">Difficulty</label>
+              <label className="form-label">Rarity</label>
               <select className="form-select" value={form.rarity} onChange={set("rarity")}>
                 {RARITIES.map((r) => <option key={r}>{r}</option>)}
               </select>
@@ -100,11 +118,15 @@ function BlueprintModal({ initial, onSave, onClose }) {
           <div className="form-row mb-md">
             <div className="form-group">
               <label className="form-label">Category</label>
-              <input className="form-input" value={form.category} onChange={set("category")} placeholder="e.g. Weapons, Attachments..." />
+              <select className="form-select" value={form.category} onChange={handleCategoryChange}>
+                {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+              </select>
             </div>
             <div className="form-group">
               <label className="form-label">Item Type</label>
-              <input className="form-input" value={form.item_type} onChange={set("item_type")} placeholder="e.g. Assault Rifle, Grip..." />
+              <select className="form-select" value={form.item_type} onChange={set("item_type")}>
+                {(ITEM_TYPES[form.category] || []).map((t) => <option key={t}>{t}</option>)}
+              </select>
             </div>
           </div>
           <div className="form-group">
@@ -315,7 +337,7 @@ export default function AdminPage() {
                     <th>Name</th>
                     <th>Category</th>
                     <th>Type</th>
-                    <th>Difficulty</th>
+                    <th>Rarity</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
