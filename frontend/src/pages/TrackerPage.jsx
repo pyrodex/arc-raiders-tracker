@@ -19,17 +19,17 @@ const extrasBadgeStyle = {
 };
 
 const countBtnStyle = (disabled) => ({
-  width: 22,
-  height: 22,
+  width: 28,
+  height: 28,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   background: "var(--bg-dark)",
   border: "1px solid var(--border)",
-  borderRadius: 2,
+  borderRadius: 3,
   color: disabled ? "var(--text-muted)" : "var(--text-secondary)",
   cursor: disabled ? "default" : "pointer",
-  fontSize: "0.9rem",
+  fontSize: "1rem",
   lineHeight: 1,
   flexShrink: 0,
 });
@@ -75,8 +75,8 @@ function BpCard({ bp, pending, onChange }) {
 
       {/* Name row */}
       <div style={{
-        fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem",
-        color: isDirty ? "var(--amber)" : "var(--text-primary)", lineHeight: 1.2,
+        fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "1rem",
+        color: isDirty ? "var(--amber)" : "var(--text-primary)", lineHeight: 1.3,
         textAlign: "center",
       }}>
         {bp.name}
@@ -91,24 +91,24 @@ function BpCard({ bp, pending, onChange }) {
 
       {/* Source */}
       {bp.source && (
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.63rem", color: "var(--text-muted)", lineHeight: 1.3 }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.4 }}>
           {bp.source}
         </div>
       )}
 
       {/* Controls */}
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.25rem", flexWrap: "wrap" }}>
         {/* Learned toggle */}
         <button
           onClick={toggleLearned}
           style={{
             flex: 1,
             fontFamily: "var(--font-mono)",
-            fontSize: "0.68rem",
-            letterSpacing: "0.05em",
+            fontSize: "0.8rem",
+            letterSpacing: "0.04em",
             textTransform: "uppercase",
-            padding: "0.28rem 0.5rem",
-            borderRadius: 2,
+            padding: "0.4rem 0.5rem",
+            borderRadius: 3,
             border: `1px solid ${learned ? "var(--amber-dark)" : "var(--border)"}`,
             background: learned ? "var(--amber-glow)" : "var(--bg-dark)",
             color: learned ? "var(--amber)" : "var(--text-muted)",
@@ -121,13 +121,13 @@ function BpCard({ bp, pending, onChange }) {
         </button>
 
         {/* Acquired count */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--text-muted)", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.73rem", color: "var(--text-muted)", textTransform: "uppercase" }}>
             Copies
           </span>
           <button style={countBtnStyle(acquired_count <= 0)} onClick={() => adjustCount(-1)} disabled={acquired_count <= 0}>−</button>
           <span style={{
-            fontFamily: "var(--font-mono)", fontSize: "0.82rem", minWidth: 18, textAlign: "center",
+            fontFamily: "var(--font-mono)", fontSize: "0.95rem", minWidth: 22, textAlign: "center",
             color: acquired_count > 0 ? "var(--color-success)" : "var(--text-muted)", fontWeight: 600,
           }}>
             {acquired_count}
@@ -138,7 +138,7 @@ function BpCard({ bp, pending, onChange }) {
 
       {/* State summary line */}
       {(acquired_count > 0 || learned) && (
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--text-muted)", marginTop: "0.15rem" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.73rem", color: "var(--text-muted)", marginTop: "0.1rem", lineHeight: 1.4 }}>
           {learned && acquired_count === 0 && "Learned — no copies in inventory"}
           {learned && acquired_count > 0  && `Learned + ${acquired_count} cop${acquired_count === 1 ? "y" : "ies"} in inventory (${ext} extra${ext !== 1 ? "s" : ""})`}
           {!learned && acquired_count === 1 && "1 copy — not yet learned"}

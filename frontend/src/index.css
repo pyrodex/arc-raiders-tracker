@@ -107,12 +107,14 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { font-size: 14px; }
+html { font-size: 16px; }
 
 body {
   background: var(--bg-void);
   color: var(--text-primary);
   font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -143,11 +145,11 @@ body::before {
 .topbar {
   background: var(--bg-dark);
   border-bottom: 2px solid var(--border-accent);
-  padding: 0 1.5rem;
+  padding: 0 2rem;
   display: flex;
   align-items: center;
   gap: 2rem;
-  height: 56px;
+  height: 64px;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -156,7 +158,7 @@ body::before {
 .topbar-logo {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   letter-spacing: 0.15em;
   color: var(--amber);
   text-transform: uppercase;
@@ -169,7 +171,7 @@ body::before {
 
 .topbar-nav {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.35rem;
   flex: 1;
 }
 
@@ -179,10 +181,10 @@ body::before {
   color: var(--text-secondary);
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.4rem 0.9rem;
+  padding: 0.45rem 1rem;
   cursor: pointer;
   border-radius: var(--radius);
   transition: all 0.15s;
@@ -201,7 +203,7 @@ body::before {
 }
 
 .main-content {
-  padding: 1.5rem;
+  padding: 2rem;
   max-width: 1600px;
   margin: 0 auto;
   width: 100%;
@@ -219,7 +221,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
+  padding: 0.9rem 1.25rem;
   border-bottom: 1px solid var(--border);
   background: var(--bg-dark);
 }
@@ -227,14 +229,14 @@ body::before {
 .panel-title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.95rem;
-  letter-spacing: 0.12em;
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-accent2);
 }
 
 .panel-body {
-  padding: 1rem;
+  padding: 1.25rem;
 }
 
 /* ── Buttons ── */
@@ -244,10 +246,10 @@ body::before {
   gap: 0.4rem;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.45rem 0.9rem;
+  padding: 0.5rem 1.1rem;
   border-radius: var(--radius);
   border: 1px solid transparent;
   cursor: pointer;
@@ -279,8 +281,8 @@ body::before {
   border-color: var(--color-danger);
 }
 
-.btn-sm { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
-.btn-icon { padding: 0.35rem 0.5rem; }
+.btn-sm { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+.btn-icon { padding: 0.4rem 0.6rem; }
 
 /* ── Form elements ── */
 .form-row {
@@ -299,9 +301,9 @@ body::before {
 
 .form-label {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -311,8 +313,8 @@ body::before {
   border-radius: var(--radius);
   color: var(--text-primary);
   font-family: var(--font-body);
-  font-size: 0.85rem;
-  padding: 0.5rem 0.7rem;
+  font-size: 0.95rem;
+  padding: 0.6rem 0.85rem;
   outline: none;
   transition: border-color 0.15s;
 }
@@ -329,23 +331,23 @@ body::before {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
 }
 
 .data-table th {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
-  padding: 0.6rem 0.8rem;
+  padding: 0.75rem 1rem;
   text-align: left;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 
 .data-table td {
-  padding: 0.55rem 0.8rem;
+  padding: 0.7rem 1rem;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
@@ -358,9 +360,9 @@ body::before {
   align-items: center;
   gap: 0.3rem;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
-  padding: 0.2rem 0.55rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.65rem;
   border-radius: 2px;
   text-transform: uppercase;
   white-space: nowrap;
@@ -371,7 +373,7 @@ body::before {
 .status-learned      { background: var(--status-learned); color: var(--status-learned-text); border: 1px solid var(--status-learned-border); }
 
 /* ── Rarity ── */
-.rarity { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.04em; font-weight: 600; }
+.rarity { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.04em; font-weight: 600; }
 .rarity-Common { color: var(--rarity-common); }
 .rarity-Uncommon { color: var(--rarity-uncommon); }
 .rarity-Rare { color: var(--rarity-rare); }
@@ -397,31 +399,31 @@ body::before {
 /* ── Stat tiles ── */
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .stat-tile {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 0.9rem 1rem;
+  padding: 1.1rem 1.25rem;
 }
 
 .stat-label {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.35rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
 }
 
 .stat-value {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.7rem;
+  font-size: 2rem;
   line-height: 1;
   color: var(--amber);
 }
@@ -438,7 +440,7 @@ body::before {
   background: var(--bg-dark);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.3rem 0.6rem;
+  padding: 0.45rem 0.75rem;
 }
 
 .search-bar input {
@@ -447,15 +449,15 @@ body::before {
   outline: none;
   color: var(--text-primary);
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   flex: 1;
-  min-width: 180px;
+  min-width: 200px;
 }
 
 .search-bar::before {
   content: "⌕";
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 /* ── Modal ── */
@@ -484,7 +486,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 1.1rem;
+  padding: 1rem 1.35rem;
   border-bottom: 1px solid var(--border);
   background: var(--bg-dark);
 }
@@ -492,19 +494,19 @@ body::before {
 .modal-title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.12em;
+  font-size: 1.15rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--amber);
 }
 
-.modal-body { padding: 1.1rem; }
+.modal-body { padding: 1.35rem; }
 
 .modal-footer {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.6rem;
   justify-content: flex-end;
-  padding: 0.85rem 1.1rem;
+  padding: 1rem 1.35rem;
   border-top: 1px solid var(--border);
 }
 
@@ -523,10 +525,10 @@ body::before {
   color: var(--text-muted);
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.6rem 1.1rem;
+  padding: 0.75rem 1.25rem;
   cursor: pointer;
   transition: all 0.15s;
   margin-bottom: -1px;
@@ -542,9 +544,9 @@ body::before {
 /* ── Filter pills ── */
 .filter-row {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.9rem;
 }
 
 .filter-pill {
@@ -552,13 +554,13 @@ body::before {
   border: 1px solid var(--border);
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  padding: 0.25rem 0.65rem;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.85rem;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.15s;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .filter-pill:hover { border-color: var(--border-bright); color: var(--text-primary); }
@@ -567,18 +569,18 @@ body::before {
 /* ── Blueprint grid ── */
 .bp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
 }
 
 .bp-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-lg);
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.6rem;
   transition: border-color 0.15s;
 }
 
@@ -590,9 +592,9 @@ body::before {
 .bp-card-name {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .bp-card-meta {
@@ -600,7 +602,7 @@ body::before {
   align-items: center;
   gap: 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.67rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
 }
 
@@ -653,11 +655,11 @@ body::before {
 
 .empty-state {
   text-align: center;
-  padding: 2.5rem 1rem;
+  padding: 3rem 1rem;
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
+  font-size: 0.88rem;
+  letter-spacing: 0.05em;
 }
 
 .divider {
@@ -672,11 +674,11 @@ body::before {
   border: 1px solid var(--border);
   border-radius: 2px;
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  padding: 0.15rem 0.45rem;
+  font-size: 0.73rem;
+  padding: 0.2rem 0.55rem;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 /* scrollbar */
@@ -738,13 +740,13 @@ body::before {
 .char-name-cell {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--text-primary);
 }
 
 .char-class-tag {
   font-family: var(--font-mono);
-  font-size: 0.67rem;
+  font-size: 0.75rem;
   color: var(--cyan);
   margin-left: 0.5rem;
 }
