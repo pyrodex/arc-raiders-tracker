@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import traceback
 from flask import Flask, jsonify, request, g
 from flask_cors import CORS
 
@@ -26,66 +27,144 @@ def close_connection(exception):
         db.close()
 
 
-def init_db():
+# ── Schema migrations ─────────────────────────────────────────────────────────
+#
+# Add new migrations by appending a tuple to MIGRATIONS:
+#
+#   (version: int, name: str, up: callable(db) -> None)
+#
+# Rules:
+#   - version numbers must be unique and monotonically increasing.
+#   - Each callable receives an open sqlite3.Connection and must NOT call
+#     db.commit() — the runner handles that.
+#   - Never modify or remove an already-applied migration; only append new ones.
+
+def _m001_initial_schema(db):
+    db.executescript("""
+        CREATE TABLE IF NOT EXISTS characters (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            class TEXT,
+            notes TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS blueprints (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            category TEXT NOT NULL DEFAULT 'Uncategorized',
+            item_type TEXT,
+            rarity TEXT DEFAULT 'Common',
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS character_blueprints (
+            character_id   INTEGER NOT NULL,
+            blueprint_id   INTEGER NOT NULL,
+            updated_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (character_id, blueprint_id),
+            FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+            FOREIGN KEY (blueprint_id) REFERENCES blueprints(id) ON DELETE CASCADE
+        );
+    """)
+
+
+def _m002_blueprints_icon_source(db):
+    """Add icon and source columns to blueprints (back-fills existing rows)."""
+    for col, typedef in [
+        ("icon",   "TEXT DEFAULT '📋'"),
+        ("source", "TEXT DEFAULT ''"),
+    ]:
+        try:
+            db.execute(f"ALTER TABLE blueprints ADD COLUMN {col} {typedef}")
+        except sqlite3.OperationalError:
+            pass  # column already present — safe to ignore
+
+
+def _m003_character_blueprints_learned_acquired(db):
+    """Replace the old single-column status with learned + acquired_count."""
+    for col, typedef in [
+        ("learned",        "INTEGER NOT NULL DEFAULT 0"),
+        ("acquired_count", "INTEGER NOT NULL DEFAULT 0"),
+    ]:
+        try:
+            db.execute(f"ALTER TABLE character_blueprints ADD COLUMN {col} {typedef}")
+        except sqlite3.OperationalError:
+            pass  # column already present — safe to ignore
+
+
+def _m004_migrate_legacy_status_values(db):
+    """One-time data migration from the old status TEXT column to learned/acquired_count."""
+    try:
+        db.execute(
+            "UPDATE character_blueprints "
+            "SET learned=1, acquired_count=0 "
+            "WHERE status='learned' AND learned=0 AND acquired_count=0"
+        )
+        db.execute(
+            "UPDATE character_blueprints "
+            "SET learned=0, acquired_count=1 "
+            "WHERE status='acquired' AND learned=0 AND acquired_count=0"
+        )
+    except sqlite3.OperationalError:
+        pass  # status column does not exist — nothing to migrate
+
+
+# Ordered list of all migrations.  Append new entries here as the schema evolves.
+MIGRATIONS = [
+    (1, "initial_schema",                       _m001_initial_schema),
+    (2, "blueprints_icon_source",               _m002_blueprints_icon_source),
+    (3, "character_blueprints_learned_acquired", _m003_character_blueprints_learned_acquired),
+    (4, "migrate_legacy_status_values",          _m004_migrate_legacy_status_values),
+]
+
+
+def _ensure_migrations_table(db):
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS schema_migrations (
+            version    INTEGER PRIMARY KEY,
+            name       TEXT    NOT NULL,
+            applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    db.commit()
+
+
+def _applied_versions(db):
+    return {row[0] for row in db.execute("SELECT version FROM schema_migrations").fetchall()}
+
+
+def run_migrations():
+    """Apply every unapplied migration in version order.
+
+    Each migration runs inside its own transaction so a failure leaves
+    previously-applied migrations intact.  A RuntimeError is raised if any
+    migration fails, halting application startup.
+    """
     with app.app_context():
         db = get_db()
-        db.executescript("""
-            CREATE TABLE IF NOT EXISTS characters (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE,
-                class TEXT,
-                notes TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
+        _ensure_migrations_table(db)
+        applied = _applied_versions(db)
 
-            CREATE TABLE IF NOT EXISTS blueprints (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE,
-                category TEXT NOT NULL DEFAULT 'Uncategorized',
-                item_type TEXT,
-                rarity TEXT DEFAULT 'Common',
-                icon TEXT DEFAULT '📋',
-                source TEXT DEFAULT '',
-                description TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
-
-            CREATE TABLE IF NOT EXISTS character_blueprints (
-                character_id   INTEGER NOT NULL,
-                blueprint_id   INTEGER NOT NULL,
-                learned        INTEGER NOT NULL DEFAULT 0,
-                acquired_count INTEGER NOT NULL DEFAULT 0,
-                updated_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (character_id, blueprint_id),
-                FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-                FOREIGN KEY (blueprint_id) REFERENCES blueprints(id) ON DELETE CASCADE
-            );
-        """)
-
-        # ── Safe migrations for existing databases ───────────────────────
-        for col, typedef in [("icon", "TEXT DEFAULT '📋'"), ("source", "TEXT DEFAULT ''")]:
+        for version, name, up in sorted(MIGRATIONS, key=lambda m: m[0]):
+            if version in applied:
+                continue
+            print(f"[migrations] Applying {version:04d}_{name} …")
             try:
-                db.execute(f"ALTER TABLE blueprints ADD COLUMN {col} {typedef}")
-            except Exception:
-                pass
-
-        for col, typedef in [
-            ("learned",        "INTEGER NOT NULL DEFAULT 0"),
-            ("acquired_count", "INTEGER NOT NULL DEFAULT 0"),
-        ]:
-            try:
-                db.execute(f"ALTER TABLE character_blueprints ADD COLUMN {col} {typedef}")
-            except Exception:
-                pass
-
-        # Migrate old status values if they exist
-        try:
-            db.execute("UPDATE character_blueprints SET learned=1, acquired_count=0 WHERE status='learned' AND learned=0 AND acquired_count=0")
-            db.execute("UPDATE character_blueprints SET learned=0, acquired_count=1 WHERE status='acquired' AND learned=0 AND acquired_count=0")
-        except Exception:
-            pass
-
-        db.commit()
+                up(db)
+                db.execute(
+                    "INSERT INTO schema_migrations (version, name) VALUES (?, ?)",
+                    (version, name),
+                )
+                db.commit()
+                print(f"[migrations] {version:04d}_{name} applied successfully.")
+            except Exception as exc:
+                db.rollback()
+                raise RuntimeError(
+                    f"Migration {version:04d}_{name} failed: {exc}\n"
+                    + traceback.format_exc()
+                ) from exc
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -350,7 +429,7 @@ def report_character_summary():
 def report_blueprint_coverage():
     db = get_db()
     total_chars = db.execute("SELECT COUNT(*) AS c FROM characters").fetchone()["c"]
-    bps = db.execute("SELECT id, name, category, rarity FROM blueprints ORDER BY category, name").fetchall()
+    bps = db.execute("SELECT id, name, category, rarity, icon FROM blueprints ORDER BY category, name").fetchall()
     result = []
     for bp in bps:
         row = db.execute("""
@@ -399,8 +478,8 @@ def report_chars_with_blueprint():
 @app.route("/api/reports/unique-blueprints", methods=["GET"])
 def report_unique_blueprints():
     db = get_db()
-    rows = db.execute("""
-        SELECT b.id, b.name, b.category, b.rarity,
+        rows = db.execute("""
+        SELECT b.id, b.name, b.category, b.rarity, b.icon,
                c.id AS char_id, c.name AS char_name, c.class AS char_class
         FROM blueprints b
         JOIN character_blueprints cb ON cb.blueprint_id=b.id AND cb.learned=1
@@ -559,6 +638,33 @@ def seed_sample_data():
     return jsonify({"seeded": inserted, "total": len(blueprints)})
 
 
+# ── Migration status endpoint ─────────────────────────────────────────────────
+
+@app.route("/api/migrations", methods=["GET"])
+def list_migrations():
+    """Return the list of all known migrations and which have been applied."""
+    db = get_db()
+    try:
+        applied = {
+            row["version"]: row["applied_at"]
+            for row in db.execute(
+                "SELECT version, applied_at FROM schema_migrations ORDER BY version"
+            ).fetchall()
+        }
+    except sqlite3.OperationalError:
+        applied = {}
+
+    result = []
+    for version, name, _ in sorted(MIGRATIONS, key=lambda m: m[0]):
+        result.append({
+            "version":    version,
+            "name":       name,
+            "applied":    version in applied,
+            "applied_at": applied.get(version),
+        })
+    return jsonify(result)
+
+
 if __name__ == "__main__":
-    init_db()
+    run_migrations()
     app.run(host="0.0.0.0", port=5000, debug=False)

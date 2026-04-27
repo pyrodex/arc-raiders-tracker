@@ -148,11 +148,12 @@ export default function DashboardPage() {
           ) : (
             <table className="data-table">
               <thead>
-                <tr><th>Blueprint</th><th>Category</th><th>Rarity</th></tr>
+                <tr><th></th><th>Blueprint</th><th>Category</th><th>Rarity</th></tr>
               </thead>
               <tbody>
                 {uncoveredBps.slice(0, 20).map((b) => (
                   <tr key={b.id}>
+                    <td style={{ textAlign: "center", fontSize: "1rem", width: 32 }}>{b.icon || "📋"}</td>
                     <td style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.83rem" }}>{b.name}</td>
                     <td><span className="tag">{b.category}</span></td>
                     <td><span className={`rarity rarity-${b.rarity}`}>{b.rarity}</span></td>

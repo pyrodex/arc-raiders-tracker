@@ -107,6 +107,7 @@ function BlueprintCoverageReport() {
         <table className="data-table">
           <thead>
             <tr>
+              <th></th>
               <th>Blueprint</th>
               <th>Category</th>
               <th>Rarity</th>
@@ -120,6 +121,7 @@ function BlueprintCoverageReport() {
           <tbody>
             {sorted.map((b) => (
               <tr key={b.id} style={{ opacity: b.missing === b.total_chars && b.total_chars > 0 ? 0.5 : 1 }}>
+                <td style={{ textAlign: "center", fontSize: "1rem", width: 32 }}>{b.icon || "📋"}</td>
                 <td style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem" }}>{b.name}</td>
                 <td><span className="tag">{b.category}</span></td>
                 <td><span className={`rarity rarity-${b.rarity}`}>{b.rarity}</span></td>
@@ -182,7 +184,7 @@ function MissingBlueprintReport() {
                 <option value="">— choose a blueprint —</option>
                 {Object.entries(grouped).map(([cat, bps]) => (
                   <optgroup key={cat} label={cat}>
-                    {bps.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                    {bps.map((b) => <option key={b.id} value={b.id}>{b.icon ? `${b.icon} ${b.name}` : b.name}</option>)}
                   </optgroup>
                 ))}
               </select>
@@ -200,7 +202,7 @@ function MissingBlueprintReport() {
         <div className="panel">
           <div className="panel-header">
             <span className="panel-title">
-              Characters missing: {result.blueprint.name}
+              {result.blueprint.icon || "📋"} Characters missing: {result.blueprint.name}
             </span>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)" }}>
               {result.missing_count} character{result.missing_count !== 1 ? "s" : ""}
@@ -275,11 +277,12 @@ function UniqueBlueprintsReport() {
           ) : (
             <table className="data-table">
               <thead>
-                <tr><th>Blueprint</th><th>Category</th><th>Rarity</th><th>Only Character</th><th>Class</th></tr>
+                <tr><th></th><th>Blueprint</th><th>Category</th><th>Rarity</th><th>Only Character</th><th>Class</th></tr>
               </thead>
               <tbody>
                 {data.map((r) => (
                   <tr key={`${r.id}-${r.char_id}`}>
+                    <td style={{ textAlign: "center", fontSize: "1rem", width: 32 }}>{r.icon || "📋"}</td>
                     <td style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem" }}>{r.name}</td>
                     <td><span className="tag">{r.category}</span></td>
                     <td><span className={`rarity rarity-${r.rarity}`}>{r.rarity}</span></td>
@@ -345,10 +348,11 @@ function SearchReport() {
               <div className="empty-state">No blueprints found.</div>
             ) : (
               <table className="data-table">
-                <thead><tr><th>Name</th><th>Category</th><th>Rarity</th></tr></thead>
+                <thead><tr><th></th><th>Name</th><th>Category</th><th>Rarity</th></tr></thead>
                 <tbody>
                   {result.blueprints.map((b) => (
                     <tr key={b.id}>
+                      <td style={{ textAlign: "center", fontSize: "1rem", width: 32 }}>{b.icon || "📋"}</td>
                       <td style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem" }}>{b.name}</td>
                       <td><span className="tag">{b.category}</span></td>
                       <td><span className={`rarity rarity-${b.rarity}`}>{b.rarity}</span></td>
