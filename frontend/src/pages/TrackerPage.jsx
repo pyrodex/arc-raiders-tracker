@@ -36,8 +36,8 @@ const countBtnStyle = (disabled) => ({
 
 // ── Blueprint card ──────────────────────────────────────────────────────────
 function BpCard({ bp, pending, onChange }) {
-  const learned        = pending?.learned        ?? bp.learned;
-  const acquired_count = pending?.acquired_count ?? bp.acquired_count;
+  const learned        = Number(pending?.learned        ?? bp.learned        ?? 0);
+  const acquired_count = Number(pending?.acquired_count ?? bp.acquired_count ?? 0);
   const ext            = learned ? acquired_count : Math.max(0, acquired_count - 1);
   const isDirty        = pending !== undefined;
 
@@ -74,16 +74,12 @@ function BpCard({ bp, pending, onChange }) {
       </div>
 
       {/* Name row */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "0.35rem" }}>
-        <BlueprintIcon icon={bp.icon} icon_url={bp.icon_url} size={22} />
-        <div style={{
-          fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem",
-          color: isDirty ? "var(--amber)" : "var(--text-primary)", lineHeight: 1.2, flex: 1,
-        }}>
-          {bp.name}
-          {isDirty && <span style={{ color: "var(--amber)", marginLeft: "0.3rem", fontSize: "0.6rem" }}>●</span>}
-        </div>
-        {ext > 0 && <span style={extrasBadgeStyle}>+{ext} extra{ext !== 1 ? "s" : ""}</span>}
+      <div style={{
+        fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem",
+        color: isDirty ? "var(--amber)" : "var(--text-primary)", lineHeight: 1.2,
+        textAlign: "center",
+      }}>
+        {bp.name}
       </div>
 
       {/* Meta */}
