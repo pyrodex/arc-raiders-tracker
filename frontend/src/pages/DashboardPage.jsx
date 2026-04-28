@@ -24,7 +24,7 @@ export default function DashboardPage() {
   const totalChars = summary.length;
   const totalBps = coverage.length;
   const totalLearned = summary.reduce((a, c) => a + c.learned, 0);
-  const totalAcquired = summary.reduce((a, c) => a + c.acquired, 0);
+  const totalAcquired = summary.reduce((a, c) => a + (c.acquired_not_learned || 0), 0);
   const avgCompletion = totalChars
     ? Math.round(summary.reduce((a, c) => a + c.completion_pct, 0) / totalChars)
     : 0;
