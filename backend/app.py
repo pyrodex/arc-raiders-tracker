@@ -335,7 +335,7 @@ def _m008_local_map():
         ("Jupiter",                    f"{P}/Jupiter.png"),
         ("Osprey",                     f"{P}/Osprey.png"),
         ("Showstopper",                f"{P}/Showstopper.png"),
-        ("Tempest I",                  f"{P}/Tempest_I.png"),
+        ("Tempest I",                  f"{P}/Tempest_I.png"),   # now uses real Tempest-Level1 image
         ("Torrente",                   f"{P}/Torrente.png"),
         ("Venator",                    f"{P}/Venator.png"),
         ("Vulcano",                    f"{P}/Vulcano.png"),
@@ -405,6 +405,10 @@ def _m008_local_map():
         ("Green Light Stick",          f"{P}/Green_Light_Stick.png"),
         ("Red Light Stick",            f"{P}/Red_Light_Stick.png"),
         ("Yellow Light Stick",         f"{P}/Yellow_Light_Stick.png"),
+        # ── Riven Tides (Apr 28 2026) ──────────────────────────────────────
+        ("Crash Mat",                  f"{P}/Crash_Mat.png"),
+        ("Powered Descender",          f"{P}/Powered_Descender.png"),
+        # White Flag and Tactical Mk. 3 (Smoke) images not yet on wiki
     ]
 
 
@@ -533,6 +537,18 @@ def _m010_drop_blueprint_source(db):
     """)
 
 
+def _m013_update_new_blueprint_icon_urls(db):
+    """Set icon_url for new Riven Tides blueprints and fix the Tempest I placeholder."""
+    P = "/images/blueprints"
+    updates = [
+        ("Crash Mat",         f"{P}/Crash_Mat.png"),
+        ("Powered Descender", f"{P}/Powered_Descender.png"),
+        ("Tempest I",         f"{P}/Tempest_I.png"),
+    ]
+    for name, url in updates:
+        db.execute("UPDATE blueprints SET icon_url=? WHERE name=?", (url, name))
+
+
 def _m012_drop_blueprint_item_type(db):
     """Drop the item_type column — category alone is sufficient."""
     db.executescript("""
@@ -572,6 +588,7 @@ MIGRATIONS = [
     (10, "drop_blueprint_source",                 _m010_drop_blueprint_source),
     (11, "correct_blueprint_data",                _m011_correct_blueprint_data),
     (12, "drop_blueprint_item_type",              _m012_drop_blueprint_item_type),
+    (13, "update_new_blueprint_icon_urls",        _m013_update_new_blueprint_icon_urls),
 ]
 
 
