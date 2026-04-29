@@ -69,27 +69,11 @@ const RARITIES = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
 
 const CATEGORIES = ["Weapons", "Mods", "Grenades", "Mines", "Quick Use", "Augments", "Materials"];
 
-const ITEM_TYPES = {
-  Weapons:    ["Assault Rifle", "Battle Rifle", "Beam Rifle", "Grenade Launcher", "Hand Cannon", "LMG", "Pistol", "Shotgun", "SMG", "Sniper Rifle"],
-  Mods:       ["Barrel", "Grip", "Magazine", "Muzzle", "Stock"],
-  Grenades:   ["Grenade"],
-  Mines:      ["Mine"],
-  "Quick Use":["Quick Use"],
-  Augments:   ["Augment"],
-  Materials:  ["Material"],
-};
-
 function BlueprintModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(
-    initial || { name: "", category: "Weapons", item_type: "Assault Rifle", rarity: "Epic", icon: "📋", description: "" }
+    initial || { name: "", category: "Weapons", rarity: "Epic", icon: "📋", description: "" }
   );
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  function handleCategoryChange(e) {
-    const cat = e.target.value;
-    const types = ITEM_TYPES[cat] || [];
-    setForm((f) => ({ ...f, category: cat, item_type: types[0] || "" }));
-  }
 
   return (
     <div className="modal-backdrop">
@@ -118,14 +102,8 @@ function BlueprintModal({ initial, onSave, onClose }) {
           <div className="form-row mb-md">
             <div className="form-group">
               <label className="form-label">Category</label>
-              <select className="form-select" value={form.category} onChange={handleCategoryChange}>
+              <select className="form-select" value={form.category} onChange={set("category")}>
                 {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Item Type</label>
-              <select className="form-select" value={form.item_type} onChange={set("item_type")}>
-                {(ITEM_TYPES[form.category] || []).map((t) => <option key={t}>{t}</option>)}
               </select>
             </div>
           </div>
@@ -231,8 +209,7 @@ export default function AdminPage() {
   const filteredBps = blueprints.filter((b) => {
     const matchCat = bpCatFilter === "All" || b.category === bpCatFilter;
     const matchSearch = !bpSearch || b.name.toLowerCase().includes(bpSearch.toLowerCase()) ||
-      b.category.toLowerCase().includes(bpSearch.toLowerCase()) ||
-      (b.item_type || "").toLowerCase().includes(bpSearch.toLowerCase());
+      b.category.toLowerCase().includes(bpSearch.toLowerCase());
     return matchCat && matchSearch;
   });
 
@@ -336,7 +313,6 @@ export default function AdminPage() {
                     <th>Icon</th>
                     <th>Name</th>
                     <th>Category</th>
-                    <th>Type</th>
                     <th>Rarity</th>
                     <th>Actions</th>
                   </tr>
@@ -347,7 +323,6 @@ export default function AdminPage() {
                       <td style={{ textAlign: "center" }}><BlueprintIcon icon={b.icon} icon_url={b.icon_url} size={28} /></td>
                       <td style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>{b.name}</td>
                       <td><span className="tag">{b.category}</span></td>
-                      <td className="text-muted text-sm">{b.item_type || "—"}</td>
                       <td><span className={`rarity rarity-${b.rarity}`}>{b.rarity}</span></td>
                       <td>
                         <div className="flex gap-sm">

@@ -420,98 +420,91 @@ def _m009_clear_blueprint_sources(db):
 
 
 def _m011_correct_blueprint_data(db):
-    """Fix categories, item types and rarities to match in-game values."""
+    """Fix categories and rarities to match in-game values."""
     corrections = [
-        # (name, category, item_type, rarity)
-        # Weapons
-        ("Anvil",                      "Weapons",   "Hand Cannon",     "Epic"),
-        ("Aphelion",                   "Weapons",   "Battle Rifle",    "Legendary"),
-        ("Bettina",                    "Weapons",   "Assault Rifle",   "Epic"),
-        ("Bobcat",                     "Weapons",   "SMG",             "Epic"),
-        ("Burletta",                   "Weapons",   "Pistol",          "Uncommon"),
-        ("Canto",                      "Weapons",   "SMG",             "Epic"),
-        ("Dolabra",                    "Weapons",   "Shotgun",         "Legendary"),
-        ("Equalizer",                  "Weapons",   "Beam Rifle",      "Legendary"),
-        ("Hullcracker",                "Weapons",   "Grenade Launcher","Epic"),
-        ("Il Toro",                    "Weapons",   "Shotgun",         "Epic"),
-        ("Jupiter",                    "Weapons",   "Sniper Rifle",    "Legendary"),
-        ("Osprey",                     "Weapons",   "Sniper Rifle",    "Epic"),
-        ("Tempest I",                  "Weapons",   "Assault Rifle",   "Epic"),
-        ("Torrente",                   "Weapons",   "LMG",             "Epic"),
-        ("Venator",                    "Weapons",   "Pistol",          "Epic"),
-        ("Vulcano",                    "Weapons",   "Shotgun",         "Epic"),
-        # All weapon mods → category Mods, rarity Epic
-        ("Angled Grip II",             "Mods",      "Grip",            "Epic"),
-        ("Angled Grip III",            "Mods",      "Grip",            "Epic"),
-        ("Compensator II",             "Mods",      "Muzzle",          "Epic"),
-        ("Compensator III",            "Mods",      "Muzzle",          "Epic"),
-        ("Extended Barrel",            "Mods",      "Barrel",          "Epic"),
-        ("Extended Light Mag II",      "Mods",      "Magazine",        "Epic"),
-        ("Extended Light Mag III",     "Mods",      "Magazine",        "Epic"),
-        ("Extended Medium Mag II",     "Mods",      "Magazine",        "Epic"),
-        ("Extended Medium Mag III",    "Mods",      "Magazine",        "Epic"),
-        ("Extended Shotgun Mag II",    "Mods",      "Magazine",        "Epic"),
-        ("Extended Shotgun Mag III",   "Mods",      "Magazine",        "Epic"),
-        ("Lightweight Stock",          "Mods",      "Stock",           "Epic"),
-        ("Muzzle Brake II",            "Mods",      "Muzzle",          "Epic"),
-        ("Muzzle Brake III",           "Mods",      "Muzzle",          "Epic"),
-        ("Padded Stock",               "Mods",      "Stock",           "Epic"),
-        ("Shotgun Choke II",           "Mods",      "Muzzle",          "Epic"),
-        ("Shotgun Choke III",          "Mods",      "Muzzle",          "Epic"),
-        ("Shotgun Silencer",           "Mods",      "Muzzle",          "Epic"),
-        ("Silencer I",                 "Mods",      "Muzzle",          "Epic"),
-        ("Silencer II",                "Mods",      "Muzzle",          "Epic"),
-        ("Stable Stock II",            "Mods",      "Stock",           "Epic"),
-        ("Stable Stock III",           "Mods",      "Stock",           "Epic"),
-        ("Vertical Grip II",           "Mods",      "Grip",            "Epic"),
-        ("Vertical Grip III",          "Mods",      "Grip",            "Epic"),
-        # Grenades
-        ("Blaze Grenade",              "Grenades",  "Grenade",         "Epic"),
-        ("Lure Grenade",               "Grenades",  "Grenade",         "Epic"),
-        ("Seeker Grenade",             "Grenades",  "Grenade",         "Epic"),
-        ("Showstopper",                "Grenades",  "Grenade",         "Epic"),
-        ("Smoke Grenade",              "Grenades",  "Grenade",         "Epic"),
-        ("Tagging Grenade",            "Grenades",  "Grenade",         "Epic"),
-        ("Trailblazer Grenade",        "Grenades",  "Grenade",         "Epic"),
-        ("Trigger Nade",               "Grenades",  "Grenade",         "Epic"),
-        ("Wolfpack",                   "Grenades",  "Grenade",         "Epic"),
-        # Mines
-        ("Deadline",                   "Mines",     "Mine",            "Epic"),
-        ("Explosive Mine",             "Mines",     "Mine",            "Epic"),
-        ("Gas Mine",                   "Mines",     "Mine",            "Epic"),
-        ("Jolt Mine",                  "Mines",     "Mine",            "Epic"),
-        ("Pulse Mine",                 "Mines",     "Mine",            "Epic"),
-        # Quick Use (Tactical + Medical + Light Sticks collapsed)
-        ("Barricade Kit",              "Quick Use", "Quick Use",       "Epic"),
-        ("Blue Light Stick",           "Quick Use", "Quick Use",       "Epic"),
-        ("Defibrillator",              "Quick Use", "Quick Use",       "Epic"),
-        ("Fireworks Box",              "Quick Use", "Quick Use",       "Epic"),
-        ("Green Light Stick",          "Quick Use", "Quick Use",       "Epic"),
-        ("Red Light Stick",            "Quick Use", "Quick Use",       "Epic"),
-        ("Remote Raider Flare",        "Quick Use", "Quick Use",       "Epic"),
-        ("Snap Hook",                  "Quick Use", "Quick Use",       "Epic"),
-        ("Surge Coil",                 "Quick Use", "Quick Use",       "Epic"),
-        ("Vita Shot",                  "Quick Use", "Quick Use",       "Epic"),
-        ("Vita Spray",                 "Quick Use", "Quick Use",       "Epic"),
-        ("Yellow Light Stick",         "Quick Use", "Quick Use",       "Epic"),
-        # Augments
-        ("Combat Mk. 3 (Aggressive)",  "Augments",  "Augment",         "Epic"),
-        ("Combat Mk. 3 (Flanking)",    "Augments",  "Augment",         "Epic"),
-        ("Looting Mk. 3 (Safekeeper)", "Augments",  "Augment",         "Epic"),
-        ("Looting Mk. 3 (Survivor)",   "Augments",  "Augment",         "Epic"),
-        ("Tactical Mk. 3 (Defensive)", "Augments",  "Augment",         "Epic"),
-        ("Tactical Mk. 3 (Healing)",   "Augments",  "Augment",         "Epic"),
-        ("Tactical Mk. 3 (Revival)",   "Augments",  "Augment",         "Epic"),
-        # Materials
-        ("Complex Gun Parts",          "Materials", "Material",        "Epic"),
-        ("Heavy Gun Parts",            "Materials", "Material",        "Epic"),
-        ("Light Gun Parts",            "Materials", "Material",        "Epic"),
-        ("Medium Gun Parts",           "Materials", "Material",        "Epic"),
+        # (name, category, rarity)
+        ("Anvil",                      "Weapons",   "Epic"),
+        ("Aphelion",                   "Weapons",   "Legendary"),
+        ("Bettina",                    "Weapons",   "Epic"),
+        ("Bobcat",                     "Weapons",   "Epic"),
+        ("Burletta",                   "Weapons",   "Uncommon"),
+        ("Canto",                      "Weapons",   "Epic"),
+        ("Dolabra",                    "Weapons",   "Legendary"),
+        ("Equalizer",                  "Weapons",   "Legendary"),
+        ("Hullcracker",                "Weapons",   "Epic"),
+        ("Il Toro",                    "Weapons",   "Epic"),
+        ("Jupiter",                    "Weapons",   "Legendary"),
+        ("Osprey",                     "Weapons",   "Epic"),
+        ("Tempest I",                  "Weapons",   "Epic"),
+        ("Torrente",                   "Weapons",   "Epic"),
+        ("Venator",                    "Weapons",   "Epic"),
+        ("Vulcano",                    "Weapons",   "Epic"),
+        ("Angled Grip II",             "Mods",      "Epic"),
+        ("Angled Grip III",            "Mods",      "Epic"),
+        ("Compensator II",             "Mods",      "Epic"),
+        ("Compensator III",            "Mods",      "Epic"),
+        ("Extended Barrel",            "Mods",      "Epic"),
+        ("Extended Light Mag II",      "Mods",      "Epic"),
+        ("Extended Light Mag III",     "Mods",      "Epic"),
+        ("Extended Medium Mag II",     "Mods",      "Epic"),
+        ("Extended Medium Mag III",    "Mods",      "Epic"),
+        ("Extended Shotgun Mag II",    "Mods",      "Epic"),
+        ("Extended Shotgun Mag III",   "Mods",      "Epic"),
+        ("Lightweight Stock",          "Mods",      "Epic"),
+        ("Muzzle Brake II",            "Mods",      "Epic"),
+        ("Muzzle Brake III",           "Mods",      "Epic"),
+        ("Padded Stock",               "Mods",      "Epic"),
+        ("Shotgun Choke II",           "Mods",      "Epic"),
+        ("Shotgun Choke III",          "Mods",      "Epic"),
+        ("Shotgun Silencer",           "Mods",      "Epic"),
+        ("Silencer I",                 "Mods",      "Epic"),
+        ("Silencer II",                "Mods",      "Epic"),
+        ("Stable Stock II",            "Mods",      "Epic"),
+        ("Stable Stock III",           "Mods",      "Epic"),
+        ("Vertical Grip II",           "Mods",      "Epic"),
+        ("Vertical Grip III",          "Mods",      "Epic"),
+        ("Blaze Grenade",              "Grenades",  "Epic"),
+        ("Lure Grenade",               "Grenades",  "Epic"),
+        ("Seeker Grenade",             "Grenades",  "Epic"),
+        ("Showstopper",                "Grenades",  "Epic"),
+        ("Smoke Grenade",              "Grenades",  "Epic"),
+        ("Tagging Grenade",            "Grenades",  "Epic"),
+        ("Trailblazer Grenade",        "Grenades",  "Epic"),
+        ("Trigger Nade",               "Grenades",  "Epic"),
+        ("Wolfpack",                   "Grenades",  "Epic"),
+        ("Deadline",                   "Mines",     "Epic"),
+        ("Explosive Mine",             "Mines",     "Epic"),
+        ("Gas Mine",                   "Mines",     "Epic"),
+        ("Jolt Mine",                  "Mines",     "Epic"),
+        ("Pulse Mine",                 "Mines",     "Epic"),
+        ("Barricade Kit",              "Quick Use", "Epic"),
+        ("Blue Light Stick",           "Quick Use", "Epic"),
+        ("Defibrillator",              "Quick Use", "Epic"),
+        ("Fireworks Box",              "Quick Use", "Epic"),
+        ("Green Light Stick",          "Quick Use", "Epic"),
+        ("Red Light Stick",            "Quick Use", "Epic"),
+        ("Remote Raider Flare",        "Quick Use", "Epic"),
+        ("Snap Hook",                  "Quick Use", "Epic"),
+        ("Surge Coil",                 "Quick Use", "Epic"),
+        ("Vita Shot",                  "Quick Use", "Epic"),
+        ("Vita Spray",                 "Quick Use", "Epic"),
+        ("Yellow Light Stick",         "Quick Use", "Epic"),
+        ("Combat Mk. 3 (Aggressive)",  "Augments",  "Epic"),
+        ("Combat Mk. 3 (Flanking)",    "Augments",  "Epic"),
+        ("Looting Mk. 3 (Safekeeper)", "Augments",  "Epic"),
+        ("Looting Mk. 3 (Survivor)",   "Augments",  "Epic"),
+        ("Tactical Mk. 3 (Defensive)", "Augments",  "Epic"),
+        ("Tactical Mk. 3 (Healing)",   "Augments",  "Epic"),
+        ("Tactical Mk. 3 (Revival)",   "Augments",  "Epic"),
+        ("Complex Gun Parts",          "Materials", "Epic"),
+        ("Heavy Gun Parts",            "Materials", "Epic"),
+        ("Light Gun Parts",            "Materials", "Epic"),
+        ("Medium Gun Parts",           "Materials", "Epic"),
     ]
-    for name, category, item_type, rarity in corrections:
+    for name, category, rarity in corrections:
         db.execute(
-            "UPDATE blueprints SET category=?, item_type=?, rarity=? WHERE name=?",
-            (category, item_type, rarity, name),
+            "UPDATE blueprints SET category=?, rarity=? WHERE name=?",
+            (category, rarity, name),
         )
 
 
@@ -522,7 +515,6 @@ def _m010_drop_blueprint_source(db):
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             name        TEXT NOT NULL UNIQUE,
             category    TEXT NOT NULL DEFAULT 'Uncategorized',
-            item_type   TEXT,
             rarity      TEXT DEFAULT 'Common',
             icon        TEXT DEFAULT '📋',
             icon_url    TEXT DEFAULT '',
@@ -531,8 +523,33 @@ def _m010_drop_blueprint_source(db):
         );
 
         INSERT INTO blueprints_new
-            (id, name, category, item_type, rarity, icon, icon_url, description, created_at)
-        SELECT  id, name, category, item_type, rarity, icon, icon_url, description, created_at
+            (id, name, category, rarity, icon, icon_url, description, created_at)
+        SELECT  id, name, category, rarity, icon, icon_url, description, created_at
+        FROM blueprints;
+
+        DROP TABLE blueprints;
+
+        ALTER TABLE blueprints_new RENAME TO blueprints;
+    """)
+
+
+def _m012_drop_blueprint_item_type(db):
+    """Drop the item_type column — category alone is sufficient."""
+    db.executescript("""
+        CREATE TABLE IF NOT EXISTS blueprints_new (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT NOT NULL UNIQUE,
+            category    TEXT NOT NULL DEFAULT 'Uncategorized',
+            rarity      TEXT DEFAULT 'Common',
+            icon        TEXT DEFAULT '📋',
+            icon_url    TEXT DEFAULT '',
+            description TEXT,
+            created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        INSERT INTO blueprints_new
+            (id, name, category, rarity, icon, icon_url, description, created_at)
+        SELECT  id, name, category, rarity, icon, icon_url, description, created_at
         FROM blueprints;
 
         DROP TABLE blueprints;
@@ -553,7 +570,8 @@ MIGRATIONS = [
     (8,  "switch_icon_urls_to_local",             _m008_switch_icon_urls_to_local),
     (9,  "clear_blueprint_sources",               _m009_clear_blueprint_sources),
     (10, "drop_blueprint_source",                 _m010_drop_blueprint_source),
-    (11, "correct_blueprint_data",               _m011_correct_blueprint_data),
+    (11, "correct_blueprint_data",                _m011_correct_blueprint_data),
+    (12, "drop_blueprint_item_type",              _m012_drop_blueprint_item_type),
 ]
 
 
@@ -699,8 +717,8 @@ def create_blueprint():
     db = get_db()
     try:
         cur = db.execute(
-            "INSERT INTO blueprints (name, category, item_type, rarity, icon, description) VALUES (?,?,?,?,?,?)",
-            (name, data.get("category","Uncategorized"), data.get("item_type",""),
+            "INSERT INTO blueprints (name, category, rarity, icon, description) VALUES (?,?,?,?,?)",
+            (name, data.get("category","Uncategorized"),
              data.get("rarity","Common"), data.get("icon","📋"),
              data.get("description","")),
         )
@@ -723,9 +741,9 @@ def update_blueprint(bid):
     if not row:
         return jsonify({"error": "Not found"}), 404
     db.execute(
-        "UPDATE blueprints SET name=?, category=?, item_type=?, rarity=?, icon=?, description=? WHERE id=?",
+        "UPDATE blueprints SET name=?, category=?, rarity=?, icon=?, description=? WHERE id=?",
         ((data.get("name") or row["name"]).strip(), data.get("category", row["category"]),
-         data.get("item_type", row["item_type"]), data.get("rarity", row["rarity"]),
+         data.get("rarity", row["rarity"]),
          data.get("icon", row["icon"]), data.get("description", row["description"]), bid),
     )
     db.commit()
@@ -754,7 +772,7 @@ def list_categories():
 def get_character_blueprints(cid):
     db = get_db()
     rows = db.execute("""
-        SELECT b.id, b.name, b.category, b.item_type, b.rarity, b.icon, b.icon_url,
+        SELECT b.id, b.name, b.category, b.rarity, b.icon, b.icon_url,
                COALESCE(cb.learned, 0)        AS learned,
                COALESCE(cb.acquired_count, 0) AS acquired_count,
                cb.updated_at
@@ -969,114 +987,117 @@ def health():
 @app.route("/api/seed", methods=["POST"])
 def seed_sample_data():
     db = get_db()
-    # (name, category, item_type, rarity, icon)
+    # (name, category, rarity, icon)
     # Categories: Weapons | Mods | Grenades | Mines | Quick Use | Augments | Materials
-    # Item types sourced from skycoach.gg/blog/arc-raiders/articles/all-blueprints-list
     blueprints = [
         # ── Weapons ──────────────────────────────────────────────────────
-        ("Anvil",                     "Weapons", "Hand Cannon",    "Epic",      "🔫"),
-        ("Aphelion",                  "Weapons", "Battle Rifle",   "Legendary", "🎯"),
-        ("Bettina",                   "Weapons", "Assault Rifle",  "Epic",      "🔫"),
-        ("Bobcat",                    "Weapons", "SMG",            "Epic",      "🔫"),
-        ("Burletta",                  "Weapons", "Pistol",         "Uncommon",  "🔫"),
-        ("Canto",                     "Weapons", "SMG",            "Epic",      "🔫"),
-        ("Dolabra",                   "Weapons", "Shotgun",        "Legendary", "🔫"),
-        ("Equalizer",                 "Weapons", "Beam Rifle",     "Legendary", "🔫"),
-        ("Hullcracker",               "Weapons", "Grenade Launcher","Epic",     "🔫"),
-        ("Il Toro",                   "Weapons", "Shotgun",        "Epic",      "🔫"),
-        ("Jupiter",                   "Weapons", "Sniper Rifle",   "Legendary", "🔫"),
-        ("Osprey",                    "Weapons", "Sniper Rifle",   "Epic",      "🎯"),
-        ("Tempest I",                 "Weapons", "Assault Rifle",  "Epic",      "🔫"),
-        ("Torrente",                  "Weapons", "LMG",            "Epic",      "🔫"),
-        ("Venator",                   "Weapons", "Pistol",         "Epic",      "🔫"),
-        ("Vulcano",                   "Weapons", "Shotgun",        "Epic",      "🔫"),
+        ("Anvil",                     "Weapons",   "Epic",      "🔫"),
+        ("Aphelion",                  "Weapons",   "Legendary", "🎯"),
+        ("Bettina",                   "Weapons",   "Epic",      "🔫"),
+        ("Bobcat",                    "Weapons",   "Epic",      "🔫"),
+        ("Burletta",                  "Weapons",   "Uncommon",  "🔫"),
+        ("Canto",                     "Weapons",   "Epic",      "🔫"),
+        ("Dolabra",                   "Weapons",   "Legendary", "🔫"),
+        ("Equalizer",                 "Weapons",   "Legendary", "🔫"),
+        ("Hullcracker",               "Weapons",   "Epic",      "🔫"),
+        ("Il Toro",                   "Weapons",   "Epic",      "🔫"),
+        ("Jupiter",                   "Weapons",   "Legendary", "🔫"),
+        ("Osprey",                    "Weapons",   "Epic",      "🎯"),
+        ("Tempest I",                 "Weapons",   "Epic",      "🔫"),
+        ("Torrente",                  "Weapons",   "Epic",      "🔫"),
+        ("Venator",                   "Weapons",   "Epic",      "🔫"),
+        ("Vulcano",                   "Weapons",   "Epic",      "🔫"),
         # ── Mods ─────────────────────────────────────────────────────────
-        ("Angled Grip II",            "Mods", "Grip",     "Epic", "🔧"),
-        ("Angled Grip III",           "Mods", "Grip",     "Epic", "🔧"),
-        ("Compensator II",            "Mods", "Muzzle",   "Epic", "🔧"),
-        ("Compensator III",           "Mods", "Muzzle",   "Epic", "🔧"),
-        ("Extended Barrel",           "Mods", "Barrel",   "Epic", "🔧"),
-        ("Extended Light Mag II",     "Mods", "Magazine", "Epic", "🔧"),
-        ("Extended Light Mag III",    "Mods", "Magazine", "Epic", "🔧"),
-        ("Extended Medium Mag II",    "Mods", "Magazine", "Epic", "🔧"),
-        ("Extended Medium Mag III",   "Mods", "Magazine", "Epic", "🔧"),
-        ("Extended Shotgun Mag II",   "Mods", "Magazine", "Epic", "🔧"),
-        ("Extended Shotgun Mag III",  "Mods", "Magazine", "Epic", "🔧"),
-        ("Lightweight Stock",         "Mods", "Stock",    "Epic", "🔧"),
-        ("Muzzle Brake II",           "Mods", "Muzzle",   "Epic", "🔧"),
-        ("Muzzle Brake III",          "Mods", "Muzzle",   "Epic", "🔧"),
-        ("Padded Stock",              "Mods", "Stock",    "Epic", "🔧"),
-        ("Shotgun Choke II",          "Mods", "Muzzle",   "Epic", "🔧"),
-        ("Shotgun Choke III",         "Mods", "Muzzle",   "Epic", "🔧"),
-        ("Shotgun Silencer",          "Mods", "Muzzle",   "Epic", "🔧"),
-        ("Silencer I",                "Mods", "Muzzle",   "Epic", "🔧"),
-        ("Silencer II",               "Mods", "Muzzle",   "Epic", "🔧"),
-        ("Stable Stock II",           "Mods", "Stock",    "Epic", "🔧"),
-        ("Stable Stock III",          "Mods", "Stock",    "Epic", "🔧"),
-        ("Vertical Grip II",          "Mods", "Grip",     "Epic", "🔧"),
-        ("Vertical Grip III",         "Mods", "Grip",     "Epic", "🔧"),
+        ("Angled Grip II",            "Mods", "Epic", "🔧"),
+        ("Angled Grip III",           "Mods", "Epic", "🔧"),
+        ("Compensator II",            "Mods", "Epic", "🔧"),
+        ("Compensator III",           "Mods", "Epic", "🔧"),
+        ("Extended Barrel",           "Mods", "Epic", "🔧"),
+        ("Extended Light Mag II",     "Mods", "Epic", "🔧"),
+        ("Extended Light Mag III",    "Mods", "Epic", "🔧"),
+        ("Extended Medium Mag II",    "Mods", "Epic", "🔧"),
+        ("Extended Medium Mag III",   "Mods", "Epic", "🔧"),
+        ("Extended Shotgun Mag II",   "Mods", "Epic", "🔧"),
+        ("Extended Shotgun Mag III",  "Mods", "Epic", "🔧"),
+        ("Lightweight Stock",         "Mods", "Epic", "🔧"),
+        ("Muzzle Brake II",           "Mods", "Epic", "🔧"),
+        ("Muzzle Brake III",          "Mods", "Epic", "🔧"),
+        ("Padded Stock",              "Mods", "Epic", "🔧"),
+        ("Shotgun Choke II",          "Mods", "Epic", "🔧"),
+        ("Shotgun Choke III",         "Mods", "Epic", "🔧"),
+        ("Shotgun Silencer",          "Mods", "Epic", "🔧"),
+        ("Silencer I",                "Mods", "Epic", "🔧"),
+        ("Silencer II",               "Mods", "Epic", "🔧"),
+        ("Stable Stock II",           "Mods", "Epic", "🔧"),
+        ("Stable Stock III",          "Mods", "Epic", "🔧"),
+        ("Vertical Grip II",          "Mods", "Epic", "🔧"),
+        ("Vertical Grip III",         "Mods", "Epic", "🔧"),
         # ── Grenades ─────────────────────────────────────────────────────
-        ("Blaze Grenade",        "Grenades", "Grenade", "Epic", "💥"),
-        ("Lure Grenade",         "Grenades", "Grenade", "Epic", "💥"),
-        ("Seeker Grenade",       "Grenades", "Grenade", "Epic", "💥"),
-        ("Showstopper",          "Grenades", "Grenade", "Epic", "💥"),
-        ("Smoke Grenade",        "Grenades", "Grenade", "Epic", "💥"),
-        ("Tagging Grenade",      "Grenades", "Grenade", "Epic", "💥"),
-        ("Trailblazer Grenade",  "Grenades", "Grenade", "Epic", "💥"),
-        ("Trigger Nade",         "Grenades", "Grenade", "Epic", "💥"),
-        ("Wolfpack",             "Grenades", "Grenade", "Epic", "💥"),
+        ("Blaze Grenade",        "Grenades", "Epic", "💥"),
+        ("Lure Grenade",         "Grenades", "Epic", "💥"),
+        ("Seeker Grenade",       "Grenades", "Epic", "💥"),
+        ("Showstopper",          "Grenades", "Epic", "💥"),
+        ("Smoke Grenade",        "Grenades", "Epic", "💥"),
+        ("Tagging Grenade",      "Grenades", "Epic", "💥"),
+        ("Trailblazer Grenade",  "Grenades", "Epic", "💥"),
+        ("Trigger Nade",         "Grenades", "Epic", "💥"),
+        ("Wolfpack",             "Grenades", "Epic", "💥"),
         # ── Mines ────────────────────────────────────────────────────────
-        ("Deadline",             "Mines", "Mine", "Epic", "💥"),
-        ("Explosive Mine",       "Mines", "Mine", "Epic", "💥"),
-        ("Gas Mine",             "Mines", "Mine", "Epic", "☣️"),
-        ("Jolt Mine",            "Mines", "Mine", "Epic", "⚡"),
-        ("Pulse Mine",           "Mines", "Mine", "Epic", "💥"),
+        ("Deadline",             "Mines", "Epic", "💥"),
+        ("Explosive Mine",       "Mines", "Epic", "💥"),
+        ("Gas Mine",             "Mines", "Epic", "☣️"),
+        ("Jolt Mine",            "Mines", "Epic", "⚡"),
+        ("Pulse Mine",           "Mines", "Epic", "💥"),
         # ── Quick Use ────────────────────────────────────────────────────
-        ("Barricade Kit",        "Quick Use", "Quick Use", "Epic", "🛡️"),
-        ("Blue Light Stick",     "Quick Use", "Quick Use", "Epic", "🔵"),
-        ("Defibrillator",        "Quick Use", "Quick Use", "Epic", "🛡️"),
-        ("Fireworks Box",        "Quick Use", "Quick Use", "Epic", "🎆"),
-        ("Green Light Stick",    "Quick Use", "Quick Use", "Epic", "🟢"),
-        ("Red Light Stick",      "Quick Use", "Quick Use", "Epic", "🔴"),
-        ("Remote Raider Flare",  "Quick Use", "Quick Use", "Epic", "🛡️"),
-        ("Snap Hook",            "Quick Use", "Quick Use", "Epic", "🛡️"),
-        ("Surge Coil",           "Quick Use", "Quick Use", "Epic", "⚡"),
-        ("Vita Shot",            "Quick Use", "Quick Use", "Epic", "💊"),
-        ("Vita Spray",           "Quick Use", "Quick Use", "Epic", "💊"),
-        ("Yellow Light Stick",   "Quick Use", "Quick Use", "Epic", "🟡"),
+        ("Barricade Kit",        "Quick Use", "Epic", "🛡️"),
+        ("Blue Light Stick",     "Quick Use", "Epic", "🔵"),
+        ("Crash Mat",            "Quick Use", "Epic", "🛡️"),
+        ("Defibrillator",        "Quick Use", "Epic", "🛡️"),
+        ("Fireworks Box",        "Quick Use", "Epic", "🎆"),
+        ("Green Light Stick",    "Quick Use", "Epic", "🟢"),
+        ("Powered Descender",    "Quick Use", "Epic", "🪂"),
+        ("Red Light Stick",      "Quick Use", "Epic", "🔴"),
+        ("Remote Raider Flare",  "Quick Use", "Epic", "🛡️"),
+        ("Snap Hook",            "Quick Use", "Epic", "🛡️"),
+        ("Surge Coil",           "Quick Use", "Epic", "⚡"),
+        ("Vita Shot",            "Quick Use", "Epic", "💊"),
+        ("Vita Spray",           "Quick Use", "Epic", "💊"),
+        ("White Flag",           "Quick Use", "Epic", "🏳️"),
+        ("Yellow Light Stick",   "Quick Use", "Epic", "🟡"),
         # ── Augments ─────────────────────────────────────────────────────
-        ("Combat Mk. 3 (Aggressive)",  "Augments", "Augment", "Epic", "⚡"),
-        ("Combat Mk. 3 (Flanking)",    "Augments", "Augment", "Epic", "⚡"),
-        ("Looting Mk. 3 (Safekeeper)", "Augments", "Augment", "Epic", "⚡"),
-        ("Looting Mk. 3 (Survivor)",   "Augments", "Augment", "Epic", "⚡"),
-        ("Tactical Mk. 3 (Defensive)", "Augments", "Augment", "Epic", "⚡"),
-        ("Tactical Mk. 3 (Healing)",   "Augments", "Augment", "Epic", "⚡"),
-        ("Tactical Mk. 3 (Revival)",   "Augments", "Augment", "Epic", "⚡"),
+        ("Combat Mk. 3 (Aggressive)",  "Augments", "Epic", "⚡"),
+        ("Combat Mk. 3 (Flanking)",    "Augments", "Epic", "⚡"),
+        ("Looting Mk. 3 (Safekeeper)", "Augments", "Epic", "⚡"),
+        ("Looting Mk. 3 (Survivor)",   "Augments", "Epic", "⚡"),
+        ("Tactical Mk. 3 (Defensive)", "Augments", "Epic", "⚡"),
+        ("Tactical Mk. 3 (Healing)",   "Augments", "Epic", "⚡"),
+        ("Tactical Mk. 3 (Revival)",   "Augments", "Epic", "⚡"),
+        ("Tactical Mk. 3 (Smoke)",     "Augments", "Epic", "⚡"),
         # ── Materials ────────────────────────────────────────────────────
-        ("Complex Gun Parts",    "Materials", "Material", "Epic", "⚙️"),
-        ("Heavy Gun Parts",      "Materials", "Material", "Epic", "⚙️"),
-        ("Light Gun Parts",      "Materials", "Material", "Epic", "⚙️"),
-        ("Medium Gun Parts",     "Materials", "Material", "Epic", "⚙️"),
+        ("Complex Gun Parts",    "Materials", "Epic", "⚙️"),
+        ("Heavy Gun Parts",      "Materials", "Epic", "⚙️"),
+        ("Light Gun Parts",      "Materials", "Epic", "⚙️"),
+        ("Medium Gun Parts",     "Materials", "Epic", "⚙️"),
     ]
     # Build icon_url lookup from the local-path map so seed and migration stay in sync
     icon_url_lookup = {name: url for name, url in _m008_local_map()}
 
     inserted = 0
     updated = 0
-    for (name, cat, itype, rarity, icon) in blueprints:
+    for (name, cat, rarity, icon) in blueprints:
         icon_url = icon_url_lookup.get(name, "")
         existing = db.execute("SELECT id FROM blueprints WHERE name=?", (name,)).fetchone()
         if existing:
             db.execute(
-                "UPDATE blueprints SET category=?, item_type=?, rarity=?, icon=?, icon_url=? WHERE id=?",
-                (cat, itype, rarity, icon, icon_url, existing["id"]),
+                "UPDATE blueprints SET category=?, rarity=?, icon=?, icon_url=? WHERE id=?",
+                (cat, rarity, icon, icon_url, existing["id"]),
             )
             updated += 1
             new_id = existing["id"]
         else:
             cur = db.execute(
-                "INSERT INTO blueprints (name, category, item_type, rarity, icon, description, icon_url) VALUES (?,?,?,?,?,'',?)",
-                (name, cat, itype, rarity, icon, icon_url),
+                "INSERT INTO blueprints (name, category, rarity, icon, description, icon_url) VALUES (?,?,?,?,'',?)",
+                (name, cat, rarity, icon, icon_url),
             )
             new_id = cur.lastrowid
             inserted += 1

@@ -85,7 +85,6 @@ function BpCard({ bp, pending, onChange }) {
       {/* Meta */}
       <div className="bp-card-meta" style={{ justifyContent: "center", flexWrap: "wrap" }}>
         <span className="tag">{bp.category}</span>
-        {bp.item_type && <span>{bp.item_type}</span>}
         <span className={`rarity rarity-${bp.rarity}`}>{bp.rarity}</span>
       </div>
 
