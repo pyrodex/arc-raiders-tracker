@@ -1,13 +1,20 @@
+import hashlib
+import mimetypes
 import os
 import sqlite3
 import traceback
-from flask import Flask, jsonify, request, g
+import urllib.request
+from flask import Flask, jsonify, request, g, send_file, abort
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
 DATABASE = os.environ.get("DATABASE_PATH", "./arc_raiders.db")
+
+# Blueprint icon images are stored alongside the database
+ICON_DIR = os.path.join(os.path.dirname(DATABASE), "blueprint_icons")
+os.makedirs(ICON_DIR, exist_ok=True)
 
 
 def get_db():
@@ -795,6 +802,55 @@ def delete_blueprint(bid):
 def list_categories():
     db = get_db()
     return jsonify([r["category"] for r in db.execute("SELECT DISTINCT category FROM blueprints ORDER BY category").fetchall()])
+
+
+@app.route("/api/blueprints/<int:bid>/fetch-icon", methods=["POST"])
+def fetch_blueprint_icon(bid):
+    """Download an image from a URL, cache it locally, update blueprint icon_url."""
+    db = get_db()
+    bp = db.execute("SELECT * FROM blueprints WHERE id=?", (bid,)).fetchone()
+    if not bp:
+        return jsonify({"error": "Blueprint not found"}), 404
+
+    data = request.get_json()
+    url = (data.get("url") or "").strip()
+    if not url:
+        return jsonify({"error": "url is required"}), 400
+
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "ARC-Raiders-Tracker/1.0"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            content_type = resp.headers.get("Content-Type", "image/png").split(";")[0].strip()
+            ext = mimetypes.guess_extension(content_type) or ".png"
+            # normalise some common aliases
+            ext = {".jpe": ".jpg", ".jpeg": ".jpg"}.get(ext, ext)
+            image_bytes = resp.read()
+    except Exception as exc:
+        return jsonify({"error": f"Failed to download image: {exc}"}), 400
+
+    # Name the file by a hash of the blueprint id + url so re-fetching the
+    # same URL produces the same filename (idempotent) and different blueprints
+    # don't clobber each other.
+    digest = hashlib.sha1(f"{bid}:{url}".encode()).hexdigest()[:12]
+    filename = f"bp_{bid}_{digest}{ext}"
+    filepath = os.path.join(ICON_DIR, filename)
+    with open(filepath, "wb") as f:
+        f.write(image_bytes)
+
+    icon_url = f"/api/blueprint-icons/{filename}"
+    db.execute("UPDATE blueprints SET icon_url=? WHERE id=?", (icon_url, bid))
+    db.commit()
+
+    return jsonify({"icon_url": icon_url})
+
+
+@app.route("/api/blueprint-icons/<path:filename>", methods=["GET"])
+def serve_blueprint_icon(filename):
+    """Serve a cached blueprint icon file."""
+    filepath = os.path.join(ICON_DIR, filename)
+    if not os.path.isfile(filepath):
+        abort(404)
+    return send_file(filepath)
 
 
 # ── Character Blueprint Status ────────────────────────────────────────────────

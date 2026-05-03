@@ -25,6 +25,7 @@ export const api = {
   updateBlueprint: (id, d) => req("PUT", `/blueprints/${id}`, d),
   deleteBlueprint: (id) => req("DELETE", `/blueprints/${id}`),
   getCategories: () => req("GET", "/blueprints/categories"),
+  fetchBlueprintIcon: (id, url) => req("POST", `/blueprints/${id}/fetch-icon`, { url }),
 
   // Character blueprints
   getCharacterBlueprints: (cid) => req("GET", `/characters/${cid}/blueprints`),

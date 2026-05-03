@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { api } from "../api.js";
 import { useToast } from "../Toast.jsx";
 import BlueprintIcon from "../BlueprintIcon.jsx";
@@ -70,27 +70,52 @@ const RARITIES = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
 const CATEGORIES = ["Weapons", "Mods", "Grenades", "Mines", "Quick Use", "Augments", "Materials"];
 
 function BlueprintModal({ initial, onSave, onClose }) {
+  const toast = useToast();
   const [form, setForm] = useState(
-    initial || { name: "", category: "Weapons", rarity: "Epic", icon: "📋", description: "" }
+    initial || { name: "", category: "Weapons", rarity: "Epic", icon: "📋", icon_url: "", description: "" }
   );
+  const [iconUrlInput, setIconUrlInput] = useState("");
+  const [fetching, setFetching] = useState(false);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  async function handleFetchIcon() {
+    if (!iconUrlInput.trim()) return;
+    // If blueprint is already saved we can fetch server-side immediately
+    if (initial?.id) {
+      setFetching(true);
+      try {
+        const result = await api.fetchBlueprintIcon(initial.id, iconUrlInput.trim());
+        setForm((f) => ({ ...f, icon_url: result.icon_url }));
+        setIconUrlInput("");
+        toast("Icon fetched and saved");
+      } catch (e) {
+        toast(e.message, "error");
+      } finally {
+        setFetching(false);
+      }
+    } else {
+      // New blueprint not yet in DB — just preview the URL directly for now;
+      // after save the parent will call saveBp which saves the form then can
+      // re-fetch. Store the raw URL as icon_url so onSave can use it.
+      setForm((f) => ({ ...f, icon_url: iconUrlInput.trim() }));
+      setIconUrlInput("");
+      toast("URL saved — icon will be fetched after blueprint is created");
+    }
+  }
 
   return (
     <div className="modal-backdrop">
-      <div className="modal">
+      <div className="modal" style={{ maxWidth: 560 }}>
         <div className="modal-header">
           <span className="modal-title">{initial ? "Edit Blueprint" : "Add Blueprint"}</span>
           <button className="btn btn-icon btn-secondary" onClick={onClose}>✕</button>
         </div>
         <div className="modal-body">
+          {/* Name + Rarity */}
           <div className="form-row mb-md">
             <div className="form-group" style={{ flex: 2 }}>
               <label className="form-label">Blueprint Name *</label>
               <input className="form-input" value={form.name} onChange={set("name")} placeholder="e.g. Anvil" />
-            </div>
-            <div className="form-group" style={{ flex: "none", width: 80 }}>
-              <label className="form-label">Icon</label>
-              <input className="form-input" value={form.icon} onChange={set("icon")} placeholder="📋" style={{ textAlign: "center", fontSize: "1.1rem" }} />
             </div>
             <div className="form-group">
               <label className="form-label">Rarity</label>
@@ -99,14 +124,60 @@ function BlueprintModal({ initial, onSave, onClose }) {
               </select>
             </div>
           </div>
-          <div className="form-row mb-md">
-            <div className="form-group">
-              <label className="form-label">Category</label>
-              <select className="form-select" value={form.category} onChange={set("category")}>
-                {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-              </select>
-            </div>
+
+          {/* Category */}
+          <div className="form-group mb-md">
+            <label className="form-label">Category</label>
+            <select className="form-select" value={form.category} onChange={set("category")}>
+              {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+            </select>
           </div>
+
+          {/* Icon image */}
+          <div className="form-group mb-md">
+            <label className="form-label">Blueprint Image</label>
+            <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+              {/* Current icon preview */}
+              <div style={{
+                width: 56, height: 56, flexShrink: 0,
+                background: "var(--bg-dark)", border: "1px solid var(--border)",
+                borderRadius: "var(--radius)", display: "flex",
+                alignItems: "center", justifyContent: "center",
+              }}>
+                <BlueprintIcon icon={form.icon} icon_url={form.icon_url} size={44} />
+              </div>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                <input
+                  className="form-input"
+                  value={iconUrlInput}
+                  onChange={(e) => setIconUrlInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleFetchIcon()}
+                  placeholder="Paste image URL to fetch & cache locally…"
+                />
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleFetchIcon}
+                  disabled={fetching || !iconUrlInput.trim()}
+                  style={{ alignSelf: "flex-start" }}
+                >
+                  {fetching ? "Fetching…" : "Fetch Image"}
+                </button>
+              </div>
+            </div>
+            {form.icon_url && (
+              <div style={{ marginTop: "0.4rem", fontSize: "0.72rem", color: "var(--text-muted)", wordBreak: "break-all" }}>
+                Current: {form.icon_url}
+                <button
+                  onClick={() => setForm((f) => ({ ...f, icon_url: "" }))}
+                  style={{ marginLeft: "0.5rem", background: "none", border: "none", color: "var(--color-danger)", cursor: "pointer", fontSize: "0.72rem" }}
+                >
+                  clear
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Notes */}
           <div className="form-group">
             <label className="form-label">Notes</label>
             <textarea className="form-textarea" value={form.description} onChange={set("description")} placeholder="Optional notes..." />
@@ -179,7 +250,16 @@ export default function AdminPage() {
         await api.updateBlueprint(bpModal.id, form);
         toast("Blueprint updated");
       } else {
-        await api.createBlueprint(form);
+        const created = await api.createBlueprint(form);
+        // If a raw external URL was provided (not yet a local /api/ path),
+        // immediately fetch and cache it server-side
+        if (form.icon_url && !form.icon_url.startsWith("/api/")) {
+          try {
+            await api.fetchBlueprintIcon(created.id, form.icon_url);
+          } catch {
+            // non-fatal — blueprint is saved, icon just stays as raw URL
+          }
+        }
         toast("Blueprint added");
       }
       setBpModal(null);
