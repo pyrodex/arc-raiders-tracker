@@ -568,6 +568,13 @@ def _m014_complete_riven_tides_icons(db):
         )
 
 
+def _m015_fandom_blueprint_icons(db):
+    """Replace all icon_urls with the proper blueprint-card images from arc-raiders.fandom.com.
+    These show the actual blueprint item cards rather than the in-game weapon renders."""
+    for name, url in _m008_local_map():
+        db.execute("UPDATE blueprints SET icon_url=? WHERE name=?", (url, name))
+
+
 def _m012_drop_blueprint_item_type(db):
     """Drop the item_type column — category alone is sufficient."""
     db.executescript("""
@@ -609,6 +616,7 @@ MIGRATIONS = [
     (12, "drop_blueprint_item_type",              _m012_drop_blueprint_item_type),
     (13, "update_new_blueprint_icon_urls",        _m013_update_new_blueprint_icon_urls),
     (14, "complete_riven_tides_icons",            _m014_complete_riven_tides_icons),
+    (15, "fandom_blueprint_icons",               _m015_fandom_blueprint_icons),
 ]
 
 
