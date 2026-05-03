@@ -408,7 +408,8 @@ def _m008_local_map():
         # ── Riven Tides (Apr 28 2026) ──────────────────────────────────────
         ("Crash Mat",                  f"{P}/Crash_Mat.png"),
         ("Powered Descender",          f"{P}/Powered_Descender.png"),
-        # White Flag and Tactical Mk. 3 (Smoke) images not yet on wiki
+        ("White Flag",                 f"{P}/White_Flag.png"),
+        ("Tactical Mk. 3 (Smoke)",     f"{P}/Tactical_Mk3_Smoke.png"),
     ]
 
 
@@ -549,6 +550,17 @@ def _m013_update_new_blueprint_icon_urls(db):
         db.execute("UPDATE blueprints SET icon_url=? WHERE name=?", (url, name))
 
 
+def _m014_complete_riven_tides_icons(db):
+    """Add icon_urls for White Flag and Tactical Mk. 3 (Smoke) now that wiki images exist.
+    Also re-applies all local icon_urls so any blueprints edited via admin (which
+    previously wiped icon_url) are restored."""
+    for name, url in _m008_local_map():
+        db.execute(
+            "UPDATE blueprints SET icon_url=? WHERE name=? AND (icon_url IS NULL OR icon_url='')",
+            (url, name),
+        )
+
+
 def _m012_drop_blueprint_item_type(db):
     """Drop the item_type column — category alone is sufficient."""
     db.executescript("""
@@ -589,6 +601,7 @@ MIGRATIONS = [
     (11, "correct_blueprint_data",                _m011_correct_blueprint_data),
     (12, "drop_blueprint_item_type",              _m012_drop_blueprint_item_type),
     (13, "update_new_blueprint_icon_urls",        _m013_update_new_blueprint_icon_urls),
+    (14, "complete_riven_tides_icons",            _m014_complete_riven_tides_icons),
 ]
 
 
@@ -758,10 +771,11 @@ def update_blueprint(bid):
     if not row:
         return jsonify({"error": "Not found"}), 404
     db.execute(
-        "UPDATE blueprints SET name=?, category=?, rarity=?, icon=?, description=? WHERE id=?",
+        "UPDATE blueprints SET name=?, category=?, rarity=?, icon=?, description=?, icon_url=? WHERE id=?",
         ((data.get("name") or row["name"]).strip(), data.get("category", row["category"]),
          data.get("rarity", row["rarity"]),
-         data.get("icon", row["icon"]), data.get("description", row["description"]), bid),
+         data.get("icon", row["icon"]), data.get("description", row["description"]),
+         data.get("icon_url", row["icon_url"]), bid),
     )
     db.commit()
     return jsonify(dict(db.execute("SELECT * FROM blueprints WHERE id=?", (bid,)).fetchone()))

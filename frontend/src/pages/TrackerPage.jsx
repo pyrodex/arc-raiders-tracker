@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { api } from "../api.js";
 import { useToast } from "../Toast.jsx";
 import BlueprintIcon from "../BlueprintIcon.jsx";
@@ -35,22 +35,19 @@ const countBtnStyle = (disabled) => ({
 });
 
 // ── Blueprint card ──────────────────────────────────────────────────────────
-function BpCard({ bp, pending, onChange }) {
-  const learned        = Number(pending?.learned        ?? bp.learned        ?? 0);
-  const acquired_count = Number(pending?.acquired_count ?? bp.acquired_count ?? 0);
+function BpCard({ bp, onChange, saving }) {
+  const learned        = Number(bp.learned        ?? 0);
+  const acquired_count = Number(bp.acquired_count ?? 0);
   const ext            = learned ? acquired_count : Math.max(0, acquired_count - 1);
-  const isDirty        = pending !== undefined;
-
-  // Determine visual state
-  const cardClass = learned ? "learned" : acquired_count > 0 ? "acquired" : "not_acquired";
+  const cardClass      = learned ? "learned" : acquired_count > 0 ? "acquired" : "not_acquired";
 
   function toggleLearned() {
-    onChange({ learned: learned ? 0 : 1, acquired_count });
+    onChange(bp, { learned: learned ? 0 : 1, acquired_count });
   }
 
   function adjustCount(delta) {
     const next = Math.max(0, acquired_count + delta);
-    onChange({ learned, acquired_count: next });
+    onChange(bp, { learned, acquired_count: next });
   }
 
   return (
@@ -68,15 +65,15 @@ function BpCard({ bp, pending, onChange }) {
             +{ext} extra{ext !== 1 ? "s" : ""}
           </span>
         )}
-        {isDirty && (
-          <span style={{ position: "absolute", top: 4, left: 6, color: "var(--amber)", fontSize: "0.55rem" }}>●</span>
+        {saving && (
+          <span style={{ position: "absolute", top: 4, left: 6, color: "var(--text-muted)", fontSize: "0.55rem" }}>↑</span>
         )}
       </div>
 
       {/* Name row */}
       <div style={{
         fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "1rem",
-        color: isDirty ? "var(--amber)" : "var(--text-primary)", lineHeight: 1.3,
+        color: "var(--text-primary)", lineHeight: 1.3,
         textAlign: "center",
       }}>
         {bp.name}
@@ -135,15 +132,15 @@ function BpCard({ bp, pending, onChange }) {
 // ── Main page ───────────────────────────────────────────────────────────────
 export default function TrackerPage() {
   const toast = useToast();
-  const [characters, setCharacters]   = useState([]);
+  const [characters, setCharacters]     = useState([]);
   const [selectedChar, setSelectedChar] = useState(null);
-  const [blueprints, setBlueprints]   = useState([]);
-  const [loading, setLoading]         = useState(false);
-  const [catFilter, setCatFilter]     = useState("All");
-  const [stateFilter, setStateFilter] = useState("All");
-  const [search, setSearch]           = useState("");
-  const [pending, setPending]         = useState({}); // { blueprint_id: {learned, acquired_count} }
-  const [saving, setSaving]           = useState(false);
+  const [blueprints, setBlueprints]     = useState([]);
+  const [loading, setLoading]           = useState(false);
+  const [catFilter, setCatFilter]       = useState("All");
+  const [stateFilter, setStateFilter]   = useState("All");
+  const [search, setSearch]             = useState("");
+  const [savingIds, setSavingIds]       = useState(new Set()); // bp ids currently being saved
+  const debounceTimers = useRef({});
 
   useEffect(() => {
     api.getCharacters().then((chars) => {
@@ -155,39 +152,36 @@ export default function TrackerPage() {
   useEffect(() => {
     if (!selectedChar) return;
     setLoading(true);
-    setPending({});
+    Object.values(debounceTimers.current).forEach(clearTimeout);
+    debounceTimers.current = {};
     api.getCharacterBlueprints(selectedChar.id)
       .then(setBlueprints)
       .finally(() => setLoading(false));
   }, [selectedChar]);
 
-  function handleChange(bp, update) {
-    setPending((p) => ({ ...p, [bp.id]: update }));
-  }
+  const handleChange = useCallback((bp, update) => {
+    // Optimistically update local state immediately
+    setBlueprints((bps) => bps.map((b) =>
+      b.id === bp.id ? { ...b, ...update } : b
+    ));
 
-  const hasPending = Object.keys(pending).length > 0;
-
-  async function saveChanges() {
-    if (!selectedChar || !hasPending) return;
-    setSaving(true);
-    try {
-      const updates = Object.entries(pending).map(([bid, v]) => ({
-        blueprint_id: parseInt(bid),
-        learned: v.learned,
-        acquired_count: v.acquired_count,
-      }));
-      await api.bulkSetStatus(selectedChar.id, updates);
-      setBlueprints((bps) => bps.map((b) =>
-        pending[b.id] ? { ...b, ...pending[b.id], extras: pending[b.id].learned ? pending[b.id].acquired_count : Math.max(0, pending[b.id].acquired_count - 1) } : b
-      ));
-      setPending({});
-      toast(`Saved ${updates.length} update${updates.length !== 1 ? "s" : ""}`);
-    } catch (e) {
-      toast(e.message, "error");
-    } finally {
-      setSaving(false);
-    }
-  }
+    // Debounce the API call so rapid +/- clicks coalesce into one request
+    if (debounceTimers.current[bp.id]) clearTimeout(debounceTimers.current[bp.id]);
+    debounceTimers.current[bp.id] = setTimeout(async () => {
+      setSavingIds((s) => new Set([...s, bp.id]));
+      try {
+        await api.setStatus(selectedChar.id, bp.id, update.learned, update.acquired_count);
+      } catch (e) {
+        toast(e.message, "error");
+        // Revert on failure
+        setBlueprints((bps) => bps.map((b) =>
+          b.id === bp.id ? { ...b, learned: bp.learned, acquired_count: bp.acquired_count } : b
+        ));
+      } finally {
+        setSavingIds((s) => { const n = new Set(s); n.delete(bp.id); return n; });
+      }
+    }, 400);
+  }, [selectedChar, toast]);
 
   // ── Filters ──
   const categories = ["All", ...new Set(blueprints.map((b) => b.category))];
@@ -201,8 +195,8 @@ export default function TrackerPage() {
   ];
 
   const filtered = blueprints.filter((b) => {
-    const lrn = pending[b.id]?.learned        ?? b.learned;
-    const cnt = pending[b.id]?.acquired_count ?? b.acquired_count;
+    const lrn = Number(b.learned ?? 0);
+    const cnt = Number(b.acquired_count ?? 0);
     const ext = lrn ? cnt : Math.max(0, cnt - 1);
     const matchCat = catFilter === "All" || b.category === catFilter;
     const matchSearch = !search || b.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -215,15 +209,15 @@ export default function TrackerPage() {
     return matchCat && matchSearch && matchState;
   });
 
-  // ── Summary counts (across ALL blueprints for selected char) ──
+  // ── Summary counts ──
   const totals = blueprints.reduce((acc, b) => {
-    const lrn = pending[b.id]?.learned        ?? b.learned;
-    const cnt = pending[b.id]?.acquired_count ?? b.acquired_count;
+    const lrn = Number(b.learned ?? 0);
+    const cnt = Number(b.acquired_count ?? 0);
     const ext = lrn ? cnt : Math.max(0, cnt - 1);
-    acc.learned        += lrn;
-    acc.acquired       += cnt > 0 ? 1 : 0;
-    acc.extras         += ext;
-    acc.not_acquired   += (lrn === 0 && cnt === 0) ? 1 : 0;
+    acc.learned      += lrn;
+    acc.acquired     += cnt > 0 ? 1 : 0;
+    acc.extras       += ext;
+    acc.not_acquired += (lrn === 0 && cnt === 0) ? 1 : 0;
     return acc;
   }, { learned: 0, acquired: 0, extras: 0, not_acquired: 0 });
 
@@ -237,15 +231,10 @@ export default function TrackerPage() {
         <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.5rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-accent)" }}>
           Blueprint Tracker
         </h1>
-        {hasPending && (
-          <div className="flex gap-sm">
-            <button className="btn btn-secondary" onClick={() => setPending({})}>
-              Discard ({Object.keys(pending).length})
-            </button>
-            <button className="btn btn-primary" onClick={saveChanges} disabled={saving}>
-              {saving ? "Saving…" : `Save (${Object.keys(pending).length})`}
-            </button>
-          </div>
+        {savingIds.size > 0 && (
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+            Saving…
+          </span>
         )}
       </div>
 
@@ -349,8 +338,8 @@ export default function TrackerPage() {
                     <BpCard
                       key={bp.id}
                       bp={bp}
-                      pending={pending[bp.id]}
-                      onChange={(update) => handleChange(bp, update)}
+                      saving={savingIds.has(bp.id)}
+                      onChange={handleChange}
                     />
                   ))}
                 </div>
